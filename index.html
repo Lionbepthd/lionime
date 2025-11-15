@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lionime - Nonton Anime Sub Indo Gratis</title>
+    <title>Lionime - Nonton Anime & Donghua Sub Indo Gratis</title>
     <style>
         /* Gaya Umum */
         :root {
@@ -79,15 +79,21 @@
         nav ul {
             display: flex;
             list-style: none;
-            gap: 1.5rem;
+            gap: 1rem; /* Kurangi gap antar link */
+            flex-wrap: wrap; /* Bungkus jika terlalu banyak */
+            justify-content: center; /* Pusatkan link */
         }
 
         nav ul li a {
             font-weight: 500;
             transition: color 0.3s ease;
+            padding: 0.5rem 1rem; /* Tambahkan padding untuk area klik yang lebih besar */
+            border-radius: var(--border-radius); /* Tambahkan border radius */
         }
 
+        nav ul li a:hover,
         nav ul li a.active {
+            background-color: rgba(231, 76, 60, 0.2); /* Warna latar saat hover/aktif */
             color: var(--primary-color);
         }
 
@@ -392,12 +398,29 @@
             color: var(--primary-color);
         }
 
-        /* Genre List */
+        /* Genre List (Anime) - Ditampilkan sebagai grid di desktop */
         #genre-list {
-            display: block; /* Ubah dari grid ke block */
-            /* Hapus grid-template-columns dan gap */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
         }
         #genre-list a {
+            display: block;
+            padding: 1rem;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        #genre-list a:hover {
+            background-color: #3c3c3c;
+        }
+
+        /* Genre List (Donghua) - Ditampilkan secara vertikal */
+        #donghua-genre-list {
+            display: block; /* Ubah dari grid ke block */
+        }
+        #donghua-genre-list a {
             display: block; /* Jadikan setiap link sebagai block terpisah */
             padding: 1rem;
             background-color: var(--card-background);
@@ -406,7 +429,7 @@
             text-align: center;
             transition: background-color 0.3s ease;
         }
-        #genre-list a:last-child { /* Hapus margin-bottom dari item terakhir */
+        #donghua-genre-list a:last-child { /* Hapus margin-bottom dari item terakhir */
             margin-bottom: 0;
         }
 
@@ -475,9 +498,13 @@
         @media (max-width: 768px) {
             /* Gaya untuk mobile */
             nav ul {
-                gap: 1rem;
-                flex-wrap: wrap;
+                gap: 0.5rem; /* Kurangi gap */
                 justify-content: center;
+            }
+
+            nav ul li a {
+                font-size: 0.9rem; /* Ukuran font lebih kecil */
+                padding: 0.4rem 0.8rem; /* Padding lebih kecil */
             }
 
             main {
@@ -507,6 +534,11 @@
                     <li><a href="#" data-page="schedule">Schedule</a></li>
                     <li><a href="#" data-page="genre">Genre</a></li>
                     <li><a href="#" data-page="all-anime">All Anime</a>
+                    <!-- Tambahkan link navigasi Donghua -->
+                    <li><a href="#" data-page="donghua-home">Donghua</a></li>
+                    <li><a href="#" data-page="donghua-ongoing">Donghua Ongoing</a></li>
+                    <li><a href="#" data-page="donghua-completed">Donghua Completed</a></li>
+                    <li><a href="#" data-page="donghua-genre">Donghua Genre</a></li>
                 </ul>
             </nav>
             <div class="search-container">
@@ -578,6 +610,35 @@
             </div>
         </section>
 
+        <!-- Section untuk konten Donghua -->
+        <section id="donghua-home-content" class="hidden">
+            <h2>Donghua Terbaru</h2>
+            <div id="donghua-home-anime-list" class="anime-grid">
+                <!-- Konten dari API akan dimuat di sini -->
+            </div>
+        </section>
+
+        <section id="donghua-ongoing-content" class="hidden">
+            <h2>Donghua Sedang Tayang</h2>
+            <div id="donghua-ongoing-anime-list" class="anime-grid">
+                <!-- Konten dari API akan dimuat di sini -->
+            </div>
+        </section>
+
+        <section id="donghua-completed-content" class="hidden">
+            <h2>Donghua Tamat</h2>
+            <div id="donghua-completed-anime-list" class="anime-grid">
+                <!-- Konten dari API akan dimuat di sini -->
+            </div>
+        </section>
+
+        <section id="donghua-genre-content" class="hidden">
+            <h2>Genre Donghua</h2>
+            <div id="donghua-genre-list">
+                <!-- Genre akan dimuat di sini -->
+            </div>
+        </section>
+
     </main>
 
     <footer>
@@ -601,8 +662,8 @@
             }
         }
 
-        // Fungsi untuk merender daftar anime ke HTML
-        function renderAnimeList(animes, containerId) {
+        // Fungsi untuk merender daftar anime atau donghua ke HTML
+        function renderAnimeList(animes, containerId, isDonghua = false) {
             const container = document.getElementById(containerId);
             if (!container || !animes) {
                 console.error('Container atau data animes tidak valid');
@@ -643,7 +704,12 @@
                         <p>${infoText}</p>
                     </div>
                 `;
-                card.addEventListener('click', () => showAnimeDetail(anime.slug));
+                // Gunakan fungsi yang sesuai berdasarkan apakah ini Donghua atau bukan
+                if (isDonghua) {
+                    card.addEventListener('click', () => showDonghuaDetail(anime.slug));
+                } else {
+                    card.addEventListener('click', () => showAnimeDetail(anime.slug));
+                }
                 container.appendChild(card);
             });
         }
@@ -712,7 +778,7 @@
 
             // Render rekomendasi jika ada
             if (anime.recommendations && anime.recommendations.length > 0) {
-                renderAnimeList(anime.recommendations, 'recommendations-list');
+                renderAnimeList(anime.recommendations, 'recommendations-list', false); // Pastikan ini adalah daftar anime
             } else {
                 document.getElementById('recommendations-list').innerHTML = '<p>Tidak ada rekomendasi.</p>';
             }
@@ -746,6 +812,116 @@
             document.getElementById('toggle-episode-list').textContent = 'Sembunyikan'; // Reset tombol
         }
 
+        // Fungsi untuk menampilkan detail donghua
+        async function showDonghuaDetail(slug) {
+            const data = await fetchAPI(`/donghua/detail/${slug}`);
+            if (!data || !data.data) {
+                console.error("Data detail donghua tidak ditemukan atau struktur salah:", data);
+                document.getElementById('anime-detail').innerHTML = '<p>Detail donghua tidak ditemukan.</p>';
+                document.getElementById('episode-list-ul').innerHTML = '';
+                return;
+            }
+
+            const donghua = data.data; // Ambil objek donghua dari data.data
+            const detailContainer = document.getElementById('anime-detail');
+            const episodeListUl = document.getElementById('episode-list-ul');
+
+            // Render detail utama donghua
+            detailContainer.innerHTML = `
+                <img src="${donghua.poster || 'https://via.placeholder.com/250x350?text=No+Image'}" alt="${donghua.title}">
+                <div class="text">
+                    <h1>${donghua.title}</h1>
+                    <p><strong>Judul Jepang:</strong> ${donghua.japanese_title || 'Tidak Diketahui'}</p>
+                    <p><strong>Genre:</strong> ${donghua.genres ? donghua.genres.map(g => g.name).join(', ') : 'Tidak Diketahui'}</p>
+                    <p><strong>Status:</strong> ${donghua.status || 'Tidak Diketahui'}</p>
+                    <p><strong>Episode:</strong> ${donghua.episode_count || 'Tidak Diketahui'}</p>
+                    <p><strong>Tipe:</strong> ${donghua.type || 'Tidak Diketahui'}</p>
+                    <p><strong>Studio:</strong> ${donghua.studio || 'Tidak Diketahui'}</p>
+                    <p><strong>Rating:</strong> ${donghua.rating || 'Tidak Diketahui'}</p>
+                    <p><strong>Rilis:</strong> ${donghua.release_date || 'Tidak Diketahui'}</p>
+                    <p><strong>Durasi:</strong> ${donghua.duration || 'Tidak Diketahui'}</p>
+                    <p><strong>Sinopsis:</strong> ${donghua.synopsis || 'Tidak tersedia.'}</p>
+                    <!-- Link batch mungkin berbeda untuk Donghua, abaikan dulu -->
+                    <!-- <div id="batch-links-container">
+                        <p>Batch tidak tersedia untuk Donghua saat ini.</p>
+                    </div> -->
+                </div>
+            `;
+
+            // Tambahkan container untuk rekomendasi (jika ada)
+            detailContainer.innerHTML += `
+                <div id="recommendations-section" class="recommendations-container">
+                    <h3>Donghua Rekomendasi</h3>
+                    <div id="recommendations-list" class="anime-grid">
+                        <!-- Rekomendasi akan dimuat di sini -->
+                    </div>
+                </div>
+            `;
+
+            // Render rekomendasi jika ada (jika API menyediakan)
+            if (donghua.recommendations && donghua.recommendations.length > 0) {
+                renderAnimeList(donghua.recommendations, 'recommendations-list', true); // Pastikan ini adalah daftar donghua
+            } else {
+                document.getElementById('recommendations-list').innerHTML = '<p>Tidak ada rekomendasi.</p>';
+            }
+
+            // Render daftar episode
+            if (donghua.episode_lists && donghua.episode_lists.length > 0) {
+                // Urutkan episode berdasarkan episode_number (opsional, tapi bagus untuk urutan)
+                const sortedEpisodes = [...donghua.episode_lists].sort((a, b) => a.episode_number - b.episode_number);
+                episodeListUl.innerHTML = ''; // Kosongkan dulu
+
+                sortedEpisodes.forEach(ep => {
+                    const li = document.createElement('li');
+                    // Gunakan episode_number untuk teks link
+                    // Ganti onclick untuk membuka halaman stream.html atau stream_donghua.html
+                    // Untuk sekarang, kita asumsikan stream.html bisa menangani slug Donghua
+                    li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(donghua.title)}&animeId=${donghua.slug}" target="_blank">${ep.episode_number}. ${ep.episode}</a>`;
+                    episodeListUl.appendChild(li);
+                });
+            } else {
+                episodeListUl.innerHTML = '<p>Daftar episode tidak tersedia.</p>';
+            }
+
+            // Tampilkan section detail
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('detail-content').classList.remove('hidden');
+            document.getElementById('episode-list').classList.remove('hidden'); // Pastikan episode list ditampilkan saat masuk detail
+            document.getElementById('toggle-episode-list').textContent = 'Sembunyikan'; // Reset tombol
+        }
+
+        // Fungsi untuk menampilkan episode
+        async function showEpisode(slug) {
+            const data = await fetchAPI(`/episode/${slug}`);
+            if (!data || !data.data) {
+                console.error("Data episode tidak ditemukan atau struktur salah:", data);
+                document.getElementById('video-player-container').innerHTML = '<p>Link streaming tidak ditemukan.</p>';
+                document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
+                return;
+            }
+
+            const episodeData = data.data;
+            const playerContainer = document.getElementById('video-player-container');
+            const infoContainer = document.getElementById('episode-info');
+
+            // --- Info Episode ---
+            infoContainer.innerHTML = `<h1>${episodeData.episode || 'Judul Episode Tidak Diketahui'}</h1>`;
+
+            // --- Player Video ---
+            // Cek apakah stream_url tersedia
+            if (episodeData.stream_url) {
+                playerContainer.innerHTML = `<iframe src="${episodeData.stream_url}" frameborder="0" allowfullscreen></iframe>`;
+            } else {
+                // Jika stream_url tidak ada, dan kita tidak bisa mengandalkan /server/ karena error,
+                // maka kita beri tahu pengguna bahwa tidak bisa dimainkan secara langsung di sini.
+                playerContainer.innerHTML = '<p>Link streaming utama tidak ditemukan atau tidak bisa dimuat di sini.</p>';
+            }
+
+            // Tampilkan section episode
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('episode-content').classList.remove('hidden');
+        }
+
         // Fungsi untuk pencarian
         async function searchAnime() {
             const query = document.getElementById('search-input').value.trim();
@@ -753,7 +929,7 @@
 
             const data = await fetchAPI(`/search/${encodeURIComponent(query)}`);
             if (data && data.data && Array.isArray(data.data)) { // Periksa data.data sebagai array
-                renderAnimeList(data.data, 'search-results-list'); // Kirim array hasil pencarian ke renderAnimeList
+                renderAnimeList(data.data, 'search-results-list', false); // Kirim array hasil pencarian ke renderAnimeList, bukan Donghua
                 document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian: ${query}`;
             } else {
                 document.getElementById('search-results-list').innerHTML = '<p>Hasil pencarian tidak ditemukan atau struktur API berubah.</p>';
@@ -771,7 +947,7 @@
             const data = await fetchAPI('/home');
             if (data && data.data && data.data.ongoing_anime) {
                 // Gunakan data.ongoing_anime dari struktur JSON yang baru
-                renderAnimeList(data.data.ongoing_anime, 'home-anime-list');
+                renderAnimeList(data.data.ongoing_anime, 'home-anime-list', false); // Tambahkan parameter false
             } else {
                 // Tampilkan pesan jika data tidak ditemukan atau struktur tidak sesuai
                 document.getElementById('home-anime-list').innerHTML = '<p>Data tidak ditemukan atau struktur API berubah.</p>';
@@ -787,9 +963,9 @@
             const data = await fetchAPI(`/ongoing-anime?page=${page}`);
             if (data && data.data && data.data.ongoingAnimeData) {
                 // Gunakan data.ongoingAnimeData dari struktur JSON yang baru
-                renderAnimeList(data.data.ongoingAnimeData, 'ongoing-anime-list');
+                renderAnimeList(data.data.ongoingAnimeData, 'ongoing-anime-list', false); // Tambahkan parameter false
             } else {
-                renderAnimeList([], 'ongoing-anime-list'); // Tampilkan pesan jika tidak ada data
+                renderAnimeList([], 'ongoing-anime-list', false); // Tampilkan pesan jika tidak ada data
                 console.warn("Struktur data /ongoing-anime tidak sesuai:", data);
             }
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
@@ -802,9 +978,9 @@
             const data = await fetchAPI(`/complete-anime/${page}`);
             if (data && data.data && data.data.completeAnimeData) {
                 // Gunakan data.completeAnimeData dari struktur JSON yang baru
-                renderAnimeList(data.data.completeAnimeData, 'completed-anime-list');
+                renderAnimeList(data.data.completeAnimeData, 'completed-anime-list', false); // Tambahkan parameter false
             } else {
-                renderAnimeList([], 'completed-anime-list'); // Tampilkan pesan jika tidak ada data
+                renderAnimeList([], 'completed-anime-list', false); // Tampilkan pesan jika tidak ada data
                 console.warn("Struktur data /complete-anime tidak sesuai:", data);
             }
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
@@ -840,7 +1016,7 @@
         async function showAnimeByGenre(genreSlug, genreName) {
             const data = await fetchAPI(`/genre/${genreSlug}?page=1`); // Gunakan page 1 untuk contoh
             if (data && data.data && data.data.anime) { // Periksa data.anime
-                renderAnimeList(data.data.anime, 'search-results-list'); // Kirim array anime ke renderAnimeList
+                renderAnimeList(data.data.anime, 'search-results-list', false); // Kirim array anime ke renderAnimeList
                 document.getElementById('search-results').querySelector('h2').textContent = `Hasil Genre: ${genreName}`;
             } else {
                 document.getElementById('search-results-list').innerHTML = '<p>Daftar anime untuk genre ini tidak ditemukan atau struktur API berubah.</p>';
@@ -987,6 +1163,104 @@
             }
         }
 
+        // --- Fungsi untuk Donghua ---
+
+        // Fungsi untuk memuat halaman home donghua
+        async function loadDonghuaHome() {
+            const page = 1; // Gunakan halaman pertama
+            const data = await fetchAPI(`/donghua/home/${page}`);
+            const container = document.getElementById('donghua-home-anime-list');
+            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
+
+            if (data && data.data && Array.isArray(data.data)) {
+                renderAnimeList(data.data, 'donghua-home-anime-list', true); // Tambahkan parameter true
+            } else {
+                renderAnimeList([], 'donghua-home-anime-list', true); // Tampilkan pesan jika tidak ada data
+                console.warn("Struktur data /donghua/home tidak sesuai:", data);
+            }
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('donghua-home-content').classList.remove('hidden');
+        }
+
+        // Fungsi untuk memuat halaman ongoing donghua
+        async function loadDonghuaOngoing() {
+            const page = 1; // Gunakan halaman pertama
+            const data = await fetchAPI(`/donghua/ongoing/${page}`);
+            const container = document.getElementById('donghua-ongoing-anime-list');
+            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
+
+            if (data && data.data && Array.isArray(data.data)) {
+                renderAnimeList(data.data, 'donghua-ongoing-anime-list', true); // Tambahkan parameter true
+            } else {
+                renderAnimeList([], 'donghua-ongoing-anime-list', true); // Tampilkan pesan jika tidak ada data
+                console.warn("Struktur data /donghua/ongoing tidak sesuai:", data);
+            }
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('donghua-ongoing-content').classList.remove('hidden');
+        }
+
+        // Fungsi untuk memuat halaman completed donghua
+        async function loadDonghuaCompleted() {
+            const page = 1; // Gunakan halaman pertama
+            const data = await fetchAPI(`/donghua/completed/${page}`);
+            const container = document.getElementById('donghua-completed-anime-list');
+            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
+
+            if (data && data.data && Array.isArray(data.data)) {
+                renderAnimeList(data.data, 'donghua-completed-anime-list', true); // Tambahkan parameter true
+            } else {
+                renderAnimeList([], 'donghua-completed-anime-list', true); // Tampilkan pesan jika tidak ada data
+                console.warn("Struktur data /donghua/completed tidak sesuai:", data);
+            }
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('donghua-completed-content').classList.remove('hidden');
+        }
+
+        // Fungsi untuk memuat halaman genre donghua
+        async function loadDonghuaGenre() {
+            const data = await fetchAPI('/donghua/genres');
+            const container = document.getElementById('donghua-genre-list');
+            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
+
+            if (data && data.data && Array.isArray(data.data)) {
+                data.data.forEach(genre => {
+                    const link = document.createElement('a');
+                    link.href = '#';
+                    link.textContent = genre.name;
+                    // Untuk sementara, hanya tampilkan alert atau konsol log
+                    // Untuk implementasi penuh, kita perlu menangani klik genre
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // Panggil fungsi baru untuk menampilkan donghua berdasarkan genre
+                        showDonghuaByGenre(genre.slug, genre.name);
+                    });
+                    container.appendChild(link);
+                });
+            } else {
+                container.innerHTML = '<p>Daftar genre tidak ditemukan atau struktur API berubah.</p>';
+                console.warn("Struktur data /donghua/genres tidak sesuai:", data);
+            }
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('donghua-genre-content').classList.remove('hidden');
+        }
+
+        // Fungsi untuk menampilkan donghua berdasarkan genre
+        async function showDonghuaByGenre(genreSlug, genreName) {
+            const page = 1; // Gunakan halaman pertama
+            const data = await fetchAPI(`/donghua/genres/${genreSlug}/${page}`);
+            if (data && data.data && Array.isArray(data.data)) { // Periksa data.data sebagai array
+                renderAnimeList(data.data, 'search-results-list', true); // Gunakan container pencarian untuk menampilkan hasil, dengan isDonghua = true
+                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Genre Donghua: ${genreName}`;
+            } else {
+                document.getElementById('search-results-list').innerHTML = '<p>Daftar donghua untuk genre ini tidak ditemukan atau struktur API berubah.</p>';
+                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Genre Donghua: ${genreName}`;
+                console.warn("Struktur data /donghua/genres/{slug} tidak sesuai:", data);
+            }
+
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('search-results').classList.remove('hidden');
+        }
+
         // Event Listeners
         document.getElementById('search-button').addEventListener('click', searchAnime);
         document.getElementById('search-input').addEventListener('keypress', (e) => {
@@ -1020,6 +1294,20 @@
                     case 'all-anime':
                         loadAllAnimePage();
                         break;
+                    // Tambahkan case untuk Donghua
+                    case 'donghua-home':
+                        loadDonghuaHome();
+                        break;
+                    case 'donghua-ongoing':
+                        loadDonghuaOngoing();
+                        break;
+                    case 'donghua-completed':
+                        loadDonghuaCompleted();
+                        break;
+                    case 'donghua-genre':
+                        loadDonghuaGenre();
+                        break;
+                    // Tambahkan case lain jika diperlukan
                 }
                 // Update kelas active
                 document.querySelectorAll('nav ul li a').forEach(a => a.classList.remove('active'));
