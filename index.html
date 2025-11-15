@@ -416,6 +416,18 @@
             background-color: #3c3c3c;
         }
 
+        /* Search Result Sections */
+        .search-result-section {
+            margin-bottom: 2rem; /* Jarak antar bagian hasil */
+        }
+
+        .search-result-section h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
         /* Footer */
         footer {
             background-color: var(--secondary-color);
@@ -620,8 +632,9 @@
         }
 
         // Fungsi untuk merender daftar anime atau donghua ke HTML
-        function renderAnimeList(animes, containerId, isDonghua = false) {
-            const container = document.getElementById(containerId);
+        function renderAnimeList(animes, containerOrId, isDonghua = false) {
+            // Jika containerOrId adalah string, ambil element-nya
+            const container = typeof containerOrId === 'string' ? document.getElementById(containerOrId) : containerOrId;
             if (!container || !animes) {
                 console.error('Container atau data animes tidak valid');
                 return;
@@ -910,33 +923,108 @@
             document.getElementById('episode-content').classList.remove('hidden');
         }
 
-        // Fungsi untuk pencarian (Anime atau Donghua)
-        async function searchContent(isDonghua = false) {
+        // Fungsi untuk pencarian (Anime dan Donghua)
+        async function searchContent() {
             const query = document.getElementById('search-input').value.trim();
             if (!query) return;
 
-            let data;
-            let titlePrefix = isDonghua ? 'Donghua' : 'Anime';
+            // Kosongkan container pencarian dulu
+            const container = document.getElementById('search-results-list');
+            container.innerHTML = '<p>Mencari...</p>';
 
-            if (isDonghua) {
-                // Gunakan page 1 untuk pencarian Donghua
-                data = await fetchAPI(`/donghua/search/${encodeURIComponent(query)}/1`);
-            } else {
-                data = await fetchAPI(`/search/${encodeURIComponent(query)}`);
+            // Panggil API untuk Anime dan Donghua secara paralel
+            const [animeData, donghuaData] = await Promise.all([
+                fetchAPI(`/search/${encodeURIComponent(query)}`),
+                fetchAPI(`/donghua/search/${encodeURIComponent(query)}/1`)
+            ]);
+
+            let combinedResults = [];
+            let hasAnime = false;
+            let hasDonghua = false;
+
+            // Proses hasil pencarian Anime
+            if (animeData && animeData.data && Array.isArray(animeData.data)) {
+                // Tambahkan flag bahwa ini adalah hasil Anime
+                const animeResults = animeData.data.map(item => ({...item, isDonghua: false}));
+                combinedResults.push(...animeResults);
+                hasAnime = true;
             }
 
-            if (data && data.data && Array.isArray(data.data)) { // Periksa data.data sebagai array
-                renderAnimeList(data.data, 'search-results-list', isDonghua); // Kirim array hasil pencarian ke renderAnimeList dengan isDonghua
-                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian ${titlePrefix}: ${query}`;
+            // Proses hasil pencarian Donghua
+            if (donghuaData && donghuaData.data && Array.isArray(donghuaData.data)) {
+                // Tambahkan flag bahwa ini adalah hasil Donghua
+                const donghuaResults = donghuaData.data.map(item => ({...item, isDonghua: true}));
+                combinedResults.push(...donghuaResults);
+                hasDonghua = true;
+            }
+
+            // Tampilkan hasil gabungan
+            if (combinedResults.length > 0) {
+                // Urutkan jika diinginkan (contoh: berdasarkan title)
+                // combinedResults.sort((a, b) => a.title.localeCompare(b.title));
+
+                // Render hasil ke container pencarian
+                renderCombinedSearchResults(combinedResults, 'search-results-list');
+                let title = `Hasil Pencarian: ${query}`;
+                if (hasAnime && hasDonghua) {
+                    title = `Hasil Pencarian (Anime & Donghua): ${query}`;
+                } else if (hasAnime) {
+                    title = `Hasil Pencarian (Anime): ${query}`;
+                } else if (hasDonghua) {
+                    title = `Hasil Pencarian (Donghua): ${query}`;
+                }
+                document.getElementById('search-results').querySelector('h2').textContent = title;
             } else {
-                document.getElementById('search-results-list').innerHTML = `<p>Hasil pencarian ${titlePrefix} tidak ditemukan atau struktur API berubah.</p>`;
-                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian ${titlePrefix}: ${query}`;
-                console.warn(`Struktur data /search (atau /donghua/search) /{query} tidak sesuai:`, data);
+                container.innerHTML = '<p>Hasil pencarian tidak ditemukan untuk Anime atau Donghua.</p>';
+                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian: ${query}`;
             }
 
             // Tampilkan section hasil pencarian
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('search-results').classList.remove('hidden');
+        }
+
+        // Fungsi untuk merender hasil pencarian gabungan (Anime dan Donghua) ke HTML
+        function renderCombinedSearchResults(items, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container || !items) {
+                console.error('Container atau data items tidak valid');
+                return;
+            }
+            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
+
+            if (!items.length) {
+                container.innerHTML = '<p>Tidak ada data yang ditemukan.</p>';
+                return;
+            }
+
+            // Kelompokkan hasil berdasarkan isDonghua
+            const animeItems = items.filter(item => !item.isDonghua);
+            const donghuaItems = items.filter(item => item.isDonghua);
+
+            // Tambahkan judul dan grid untuk Anime jika ada
+            if (animeItems.length > 0) {
+                const animeSection = document.createElement('div');
+                animeSection.className = 'search-result-section';
+                animeSection.innerHTML = `<h3>Anime</h3>`;
+                const animeGrid = document.createElement('div');
+                animeGrid.className = 'anime-grid';
+                animeSection.appendChild(animeGrid);
+                container.appendChild(animeSection);
+                renderAnimeList(animeItems, animeGrid, false); // Gunakan renderAnimeList untuk bagian ini
+            }
+
+            // Tambahkan judul dan grid untuk Donghua jika ada
+            if (donghuaItems.length > 0) {
+                const donghuaSection = document.createElement('div');
+                donghuaSection.className = 'search-result-section';
+                donghuaSection.innerHTML = `<h3>Donghua</h3>`;
+                const donghuaGrid = document.createElement('div');
+                donghuaGrid.className = 'anime-grid';
+                donghuaSection.appendChild(donghuaGrid);
+                container.appendChild(donghuaSection);
+                renderAnimeList(donghuaItems, donghuaGrid, true); // Gunakan renderAnimeList untuk bagian ini
+            }
         }
 
         // Fungsi untuk memuat halaman utama (Anime dan Donghua Terbaru)
@@ -1172,16 +1260,12 @@
 
         // Event Listeners
         document.getElementById('search-button').addEventListener('click', () => {
-            const activePage = document.querySelector('nav ul li a.active').getAttribute('data-page');
-            const isDonghuaContext = activePage.includes('donghua'); // Periksa apakah halaman aktif terkait Donghua
-            searchContent(isDonghuaContext);
+            searchContent(); // Panggil tanpa parameter
         });
 
         document.getElementById('search-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const activePage = document.querySelector('nav ul li a.active').getAttribute('data-page');
-                const isDonghuaContext = activePage.includes('donghua');
-                searchContent(isDonghuaContext);
+                searchContent(); // Panggil tanpa parameter
             }
         });
 
