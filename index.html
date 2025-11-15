@@ -539,6 +539,9 @@
                     <li><a href="#" data-page="donghua-ongoing">Donghua Ongoing</a></li>
                     <li><a href="#" data-page="donghua-completed">Donghua Completed</a></li>
                     <li><a href="#" data-page="donghua-genre">Donghua Genre</a></li>
+                    <li><a href="#" data-page="donghua-season-2025">Donghua 2025</a></li>
+                    <li><a href="#" data-page="donghua-season-2024">Donghua 2024</a></li>
+                    <li><a href="#" data-page="donghua-season-2023">Donghua 2023</a></li>
                 </ul>
             </nav>
             <div class="search-container">
@@ -866,17 +869,48 @@
             }
 
             // Render daftar episode
-            if (donghua.episode_lists && donghua.episode_lists.length > 0) {
+            // Periksa episodes_list (untuk Donghua) atau episode_lists (untuk Anime biasa)
+            if (donghua.episodes_list && donghua.episodes_list.length > 0) { // Periksa episodes_list untuk Donghua
                 // Urutkan episode berdasarkan episode_number (opsional, tapi bagus untuk urutan)
+                // Karena Donghua API mungkin tidak menyediakan episode_number secara eksplisit dalam struktur ini,
+                // kita bisa mengurutkan berdasarkan slug atau mengasumsikan urutan dalam array sudah benar.
+                // Jika episode_number diperlukan, kita perlu ekstrak dari judul episode atau slug.
+                // Untuk sementara, kita asumsikan urutan dalam episodes_list sudah benar.
+                const sortedEpisodes = [...donghua.episodes_list]; // Salin array
+
+                episodeListUl.innerHTML = ''; // Kosongkan dulu
+
+                sortedEpisodes.forEach(ep => {
+                    const li = document.createElement('li');
+                    // Ambil nomor episode dari judul episode jika memungkinkan
+                    // Contoh: "Little Fairy Yao Episode 40 Tamat Subtitle Indonesia"
+                    // Kita bisa mencoba ekstrak "Episode 40" menggunakan regex
+                    let episodeNumber = "N/A";
+                    const episodeMatch = ep.episode.match(/Episode\s+(\d+)/i);
+                    if (episodeMatch) {
+                        episodeNumber = episodeMatch[1];
+                    } else {
+                        // Jika tidak bisa diambil, gunakan slug atau bagian akhir URL
+                        // Contoh slug: little-fairy-yao-episode-40-tamat-subtitle-indonesia
+                        const slugMatch = ep.slug.match(/episode-(\d+)/i);
+                        if (slugMatch) {
+                            episodeNumber = slugMatch[1];
+                        }
+                    }
+
+                    // Gunakan episode_number untuk teks link
+                    // Ganti href untuk membuka halaman stream_donghua.html
+                    li.innerHTML = `<a href="stream_donghua.html?episode=${ep.slug}&title=${encodeURIComponent(donghua.title)}&animeId=${donghua.slug}" target="_blank">${episodeNumber}. ${ep.episode}</a>`;
+                    episodeListUl.appendChild(li);
+                });
+            } else if (donghua.episode_lists && donghua.episode_lists.length > 0) {
+                // Jika episodes_list tidak ditemukan, coba episode_lists (kemungkinan API lama atau konsistensi)
                 const sortedEpisodes = [...donghua.episode_lists].sort((a, b) => a.episode_number - b.episode_number);
                 episodeListUl.innerHTML = ''; // Kosongkan dulu
 
                 sortedEpisodes.forEach(ep => {
                     const li = document.createElement('li');
-                    // Gunakan episode_number untuk teks link
-                    // Ganti onclick untuk membuka halaman stream.html atau stream_donghua.html
-                    // Untuk sekarang, kita asumsikan stream.html bisa menangani slug Donghua
-                    li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(donghua.title)}&animeId=${donghua.slug}" target="_blank">${ep.episode_number}. ${ep.episode}</a>`;
+                    li.innerHTML = `<a href="stream_donghua.html?episode=${ep.slug}&title=${encodeURIComponent(donghua.title)}&animeId=${donghua.slug}" target="_blank">${ep.episode_number}. ${ep.episode}</a>`;
                     episodeListUl.appendChild(li);
                 });
             } else {
@@ -922,19 +956,28 @@
             document.getElementById('episode-content').classList.remove('hidden');
         }
 
-        // Fungsi untuk pencarian
-        async function searchAnime() {
+        // Fungsi untuk pencarian (Anime atau Donghua)
+        async function searchContent(isDonghua = false) {
             const query = document.getElementById('search-input').value.trim();
             if (!query) return;
 
-            const data = await fetchAPI(`/search/${encodeURIComponent(query)}`);
-            if (data && data.data && Array.isArray(data.data)) { // Periksa data.data sebagai array
-                renderAnimeList(data.data, 'search-results-list', false); // Kirim array hasil pencarian ke renderAnimeList, bukan Donghua
-                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian: ${query}`;
+            let data;
+            let titlePrefix = isDonghua ? 'Donghua' : 'Anime';
+
+            if (isDonghua) {
+                // Gunakan page 1 untuk pencarian Donghua
+                data = await fetchAPI(`/donghua/search/${encodeURIComponent(query)}/1`);
             } else {
-                document.getElementById('search-results-list').innerHTML = '<p>Hasil pencarian tidak ditemukan atau struktur API berubah.</p>';
-                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian: ${query}`;
-                console.warn("Struktur data /search/{query} tidak sesuai:", data);
+                data = await fetchAPI(`/search/${encodeURIComponent(query)}`);
+            }
+
+            if (data && data.data && Array.isArray(data.data)) { // Periksa data.data sebagai array
+                renderAnimeList(data.data, 'search-results-list', isDonghua); // Kirim array hasil pencarian ke renderAnimeList dengan isDonghua
+                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian ${titlePrefix}: ${query}`;
+            } else {
+                document.getElementById('search-results-list').innerHTML = `<p>Hasil pencarian ${titlePrefix} tidak ditemukan atau struktur API berubah.</p>`;
+                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Pencarian ${titlePrefix}: ${query}`;
+                console.warn(`Struktur data /search (atau /donghua/search) /{query} tidak sesuai:`, data);
             }
 
             // Tampilkan section hasil pencarian
@@ -1172,8 +1215,9 @@
             const container = document.getElementById('donghua-home-anime-list');
             container.innerHTML = ''; // Kosongkan kontainer sebelumnya
 
-            if (data && data.data && Array.isArray(data.data)) {
-                renderAnimeList(data.data, 'donghua-home-anime-list', true); // Tambahkan parameter true
+            if (data && data.data && Array.isArray(data.data.latest_release)) {
+                // Gunakan data.latest_release dari struktur JSON Donghua
+                renderAnimeList(data.data.latest_release, 'donghua-home-anime-list', true); // Tambahkan parameter true
             } else {
                 renderAnimeList([], 'donghua-home-anime-list', true); // Tampilkan pesan jika tidak ada data
                 console.warn("Struktur data /donghua/home tidak sesuai:", data);
@@ -1189,8 +1233,9 @@
             const container = document.getElementById('donghua-ongoing-anime-list');
             container.innerHTML = ''; // Kosongkan kontainer sebelumnya
 
-            if (data && data.data && Array.isArray(data.data)) {
-                renderAnimeList(data.data, 'donghua-ongoing-anime-list', true); // Tambahkan parameter true
+            if (data && data.data && Array.isArray(data.data.ongoing_donghua)) {
+                // Gunakan data.ongoing_donghua dari struktur JSON Donghua
+                renderAnimeList(data.data.ongoing_donghua, 'donghua-ongoing-anime-list', true); // Tambahkan parameter true
             } else {
                 renderAnimeList([], 'donghua-ongoing-anime-list', true); // Tampilkan pesan jika tidak ada data
                 console.warn("Struktur data /donghua/ongoing tidak sesuai:", data);
@@ -1206,8 +1251,9 @@
             const container = document.getElementById('donghua-completed-anime-list');
             container.innerHTML = ''; // Kosongkan kontainer sebelumnya
 
-            if (data && data.data && Array.isArray(data.data)) {
-                renderAnimeList(data.data, 'donghua-completed-anime-list', true); // Tambahkan parameter true
+            if (data && data.data && Array.isArray(data.data.completed_donghua)) {
+                // Gunakan data.completed_donghua dari struktur JSON Donghua
+                renderAnimeList(data.data.completed_donghua, 'donghua-completed-anime-list', true); // Tambahkan parameter true
             } else {
                 renderAnimeList([], 'donghua-completed-anime-list', true); // Tampilkan pesan jika tidak ada data
                 console.warn("Struktur data /donghua/completed tidak sesuai:", data);
@@ -1261,10 +1307,40 @@
             document.getElementById('search-results').classList.remove('hidden');
         }
 
+        // Fungsi untuk memuat halaman berdasarkan musim/tahun donghua
+        async function loadDonghuaBySeason(year) {
+            if (!year) year = "2023"; // Ganti dengan logika atau input jika diperlukan
+
+            const data = await fetchAPI(`/donghua/seasons/${year}`);
+            const container = document.getElementById('search-results-list'); // Gunakan container pencarian untuk menampilkan hasil
+            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
+
+            if (data && data.data && Array.isArray(data.data)) {
+                renderAnimeList(data.data, 'search-results-list', true); // Kirim array hasil ke renderAnimeList, dengan isDonghua = true
+                document.getElementById('search-results').querySelector('h2').textContent = `Donghua Tahun ${year}`;
+            } else {
+                container.innerHTML = '<p>Daftar Donghua untuk tahun ini tidak ditemukan atau struktur API berubah.</p>';
+                document.getElementById('search-results').querySelector('h2').textContent = `Donghua Tahun ${year}`;
+                console.warn("Struktur data /donghua/seasons/{year} tidak sesuai:", data);
+            }
+
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('search-results').classList.remove('hidden');
+        }
+
         // Event Listeners
-        document.getElementById('search-button').addEventListener('click', searchAnime);
+        document.getElementById('search-button').addEventListener('click', () => {
+            const activePage = document.querySelector('nav ul li a.active').getAttribute('data-page');
+            const isDonghuaContext = activePage.includes('donghua'); // Periksa apakah halaman aktif terkait Donghua
+            searchContent(isDonghuaContext);
+        });
+
         document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchAnime();
+            if (e.key === 'Enter') {
+                const activePage = document.querySelector('nav ul li a.active').getAttribute('data-page');
+                const isDonghuaContext = activePage.includes('donghua');
+                searchContent(isDonghuaContext);
+            }
         });
 
         // Toggle Episode List
@@ -1306,6 +1382,15 @@
                         break;
                     case 'donghua-genre':
                         loadDonghuaGenre();
+                        break;
+                    case 'donghua-season-2025':
+                        loadDonghuaBySeason('2025');
+                        break;
+                    case 'donghua-season-2024':
+                        loadDonghuaBySeason('2024');
+                        break;
+                    case 'donghua-season-2023':
+                        loadDonghuaBySeason('2023');
                         break;
                     // Tambahkan case lain jika diperlukan
                 }
