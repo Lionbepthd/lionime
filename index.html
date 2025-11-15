@@ -416,23 +416,6 @@
             background-color: #3c3c3c;
         }
 
-        /* Genre List (Donghua) - Ditampilkan secara vertikal */
-        #donghua-genre-list {
-            display: block; /* Ubah dari grid ke block */
-        }
-        #donghua-genre-list a {
-            display: block; /* Jadikan setiap link sebagai block terpisah */
-            padding: 1rem;
-            background-color: var(--card-background);
-            border-radius: var(--border-radius);
-            margin-bottom: 0.5rem; /* Tambahkan jarak antar item */
-            text-align: center;
-            transition: background-color 0.3s ease;
-        }
-        #donghua-genre-list a:last-child { /* Hapus margin-bottom dari item terakhir */
-            margin-bottom: 0;
-        }
-
         /* Footer */
         footer {
             background-color: var(--secondary-color);
@@ -534,14 +517,7 @@
                     <li><a href="#" data-page="schedule">Schedule</a></li>
                     <li><a href="#" data-page="genre">Genre</a></li>
                     <li><a href="#" data-page="all-anime">All Anime</a>
-                    <!-- Tambahkan link navigasi Donghua -->
-                    <li><a href="#" data-page="donghua-home">Donghua</a></li>
-                    <li><a href="#" data-page="donghua-ongoing">Donghua Ongoing</a></li>
-                    <li><a href="#" data-page="donghua-completed">Donghua Completed</a></li>
-                    <li><a href="#" data-page="donghua-genre">Donghua Genre</a></li>
-                    <li><a href="#" data-page="donghua-season-2025">Donghua 2025</a></li>
-                    <li><a href="#" data-page="donghua-season-2024">Donghua 2024</a></li>
-                    <li><a href="#" data-page="donghua-season-2023">Donghua 2023</a></li>
+                    <!-- Menu navigasi Donghua dihapus -->
                 </ul>
             </nav>
             <div class="search-container">
@@ -554,7 +530,12 @@
     <main class="container">
         <section id="home-content">
             <h2>Anime Terbaru</h2>
-            <div id="home-anime-list" class="anime-grid">
+            <div id="anime-latest-grid" class="anime-grid">
+                <!-- Konten dari API akan dimuat di sini -->
+            </div>
+
+            <h2>Donghua Terbaru</h2>
+            <div id="donghua-latest-grid" class="anime-grid">
                 <!-- Konten dari API akan dimuat di sini -->
             </div>
         </section>
@@ -613,34 +594,7 @@
             </div>
         </section>
 
-        <!-- Section untuk konten Donghua -->
-        <section id="donghua-home-content" class="hidden">
-            <h2>Donghua Terbaru</h2>
-            <div id="donghua-home-anime-list" class="anime-grid">
-                <!-- Konten dari API akan dimuat di sini -->
-            </div>
-        </section>
-
-        <section id="donghua-ongoing-content" class="hidden">
-            <h2>Donghua Sedang Tayang</h2>
-            <div id="donghua-ongoing-anime-list" class="anime-grid">
-                <!-- Konten dari API akan dimuat di sini -->
-            </div>
-        </section>
-
-        <section id="donghua-completed-content" class="hidden">
-            <h2>Donghua Tamat</h2>
-            <div id="donghua-completed-anime-list" class="anime-grid">
-                <!-- Konten dari API akan dimuat di sini -->
-            </div>
-        </section>
-
-        <section id="donghua-genre-content" class="hidden">
-            <h2>Genre Donghua</h2>
-            <div id="donghua-genre-list">
-                <!-- Genre akan dimuat di sini -->
-            </div>
-        </section>
+        <!-- Section Donghua dihapus -->
 
     </main>
 
@@ -985,17 +939,27 @@
             document.getElementById('search-results').classList.remove('hidden');
         }
 
-        // Fungsi untuk memuat halaman utama
+        // Fungsi untuk memuat halaman utama (Anime dan Donghua Terbaru)
         async function loadHomePage() {
-            const data = await fetchAPI('/home');
-            if (data && data.data && data.data.ongoing_anime) {
-                // Gunakan data.ongoing_anime dari struktur JSON yang baru
-                renderAnimeList(data.data.ongoing_anime, 'home-anime-list', false); // Tambahkan parameter false
+            // Muat Anime Terbaru
+            const animeData = await fetchAPI('/home');
+            if (animeData && animeData.data && animeData.data.ongoing_anime) {
+                renderAnimeList(animeData.data.ongoing_anime, 'anime-latest-grid', false);
             } else {
-                // Tampilkan pesan jika data tidak ditemukan atau struktur tidak sesuai
-                document.getElementById('home-anime-list').innerHTML = '<p>Data tidak ditemukan atau struktur API berubah.</p>';
-                console.warn("Struktur data /home tidak sesuai:", data);
+                renderAnimeList([], 'anime-latest-grid', false);
+                console.warn("Struktur data /home (anime) tidak sesuai:", animeData);
             }
+
+            // Muat Donghua Terbaru
+            const donghuaData = await fetchAPI('/donghua/home/1');
+            if (donghuaData && donghuaData.data && Array.isArray(donghuaData.data.latest_release)) {
+                renderAnimeList(donghuaData.data.latest_release, 'donghua-latest-grid', true);
+            } else {
+                renderAnimeList([], 'donghua-latest-grid', true);
+                console.warn("Struktur data /donghua/home (donghua) tidak sesuai:", donghuaData);
+            }
+
+            // Tampilkan section home
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('home-content').classList.remove('hidden');
         }
@@ -1206,128 +1170,6 @@
             }
         }
 
-        // --- Fungsi untuk Donghua ---
-
-        // Fungsi untuk memuat halaman home donghua
-        async function loadDonghuaHome() {
-            const page = 1; // Gunakan halaman pertama
-            const data = await fetchAPI(`/donghua/home/${page}`);
-            const container = document.getElementById('donghua-home-anime-list');
-            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
-
-            if (data && data.data && Array.isArray(data.data.latest_release)) {
-                // Gunakan data.latest_release dari struktur JSON Donghua
-                renderAnimeList(data.data.latest_release, 'donghua-home-anime-list', true); // Tambahkan parameter true
-            } else {
-                renderAnimeList([], 'donghua-home-anime-list', true); // Tampilkan pesan jika tidak ada data
-                console.warn("Struktur data /donghua/home tidak sesuai:", data);
-            }
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('donghua-home-content').classList.remove('hidden');
-        }
-
-        // Fungsi untuk memuat halaman ongoing donghua
-        async function loadDonghuaOngoing() {
-            const page = 1; // Gunakan halaman pertama
-            const data = await fetchAPI(`/donghua/ongoing/${page}`);
-            const container = document.getElementById('donghua-ongoing-anime-list');
-            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
-
-            if (data && data.data && Array.isArray(data.data.ongoing_donghua)) {
-                // Gunakan data.ongoing_donghua dari struktur JSON Donghua
-                renderAnimeList(data.data.ongoing_donghua, 'donghua-ongoing-anime-list', true); // Tambahkan parameter true
-            } else {
-                renderAnimeList([], 'donghua-ongoing-anime-list', true); // Tampilkan pesan jika tidak ada data
-                console.warn("Struktur data /donghua/ongoing tidak sesuai:", data);
-            }
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('donghua-ongoing-content').classList.remove('hidden');
-        }
-
-        // Fungsi untuk memuat halaman completed donghua
-        async function loadDonghuaCompleted() {
-            const page = 1; // Gunakan halaman pertama
-            const data = await fetchAPI(`/donghua/completed/${page}`);
-            const container = document.getElementById('donghua-completed-anime-list');
-            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
-
-            if (data && data.data && Array.isArray(data.data.completed_donghua)) {
-                // Gunakan data.completed_donghua dari struktur JSON Donghua
-                renderAnimeList(data.data.completed_donghua, 'donghua-completed-anime-list', true); // Tambahkan parameter true
-            } else {
-                renderAnimeList([], 'donghua-completed-anime-list', true); // Tampilkan pesan jika tidak ada data
-                console.warn("Struktur data /donghua/completed tidak sesuai:", data);
-            }
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('donghua-completed-content').classList.remove('hidden');
-        }
-
-        // Fungsi untuk memuat halaman genre donghua
-        async function loadDonghuaGenre() {
-            const data = await fetchAPI('/donghua/genres');
-            const container = document.getElementById('donghua-genre-list');
-            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
-
-            if (data && data.data && Array.isArray(data.data)) {
-                data.data.forEach(genre => {
-                    const link = document.createElement('a');
-                    link.href = '#';
-                    link.textContent = genre.name;
-                    // Untuk sementara, hanya tampilkan alert atau konsol log
-                    // Untuk implementasi penuh, kita perlu menangani klik genre
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        // Panggil fungsi baru untuk menampilkan donghua berdasarkan genre
-                        showDonghuaByGenre(genre.slug, genre.name);
-                    });
-                    container.appendChild(link);
-                });
-            } else {
-                container.innerHTML = '<p>Daftar genre tidak ditemukan atau struktur API berubah.</p>';
-                console.warn("Struktur data /donghua/genres tidak sesuai:", data);
-            }
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('donghua-genre-content').classList.remove('hidden');
-        }
-
-        // Fungsi untuk menampilkan donghua berdasarkan genre
-        async function showDonghuaByGenre(genreSlug, genreName) {
-            const page = 1; // Gunakan halaman pertama
-            const data = await fetchAPI(`/donghua/genres/${genreSlug}/${page}`);
-            if (data && data.data && Array.isArray(data.data)) { // Periksa data.data sebagai array
-                renderAnimeList(data.data, 'search-results-list', true); // Gunakan container pencarian untuk menampilkan hasil, dengan isDonghua = true
-                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Genre Donghua: ${genreName}`;
-            } else {
-                document.getElementById('search-results-list').innerHTML = '<p>Daftar donghua untuk genre ini tidak ditemukan atau struktur API berubah.</p>';
-                document.getElementById('search-results').querySelector('h2').textContent = `Hasil Genre Donghua: ${genreName}`;
-                console.warn("Struktur data /donghua/genres/{slug} tidak sesuai:", data);
-            }
-
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('search-results').classList.remove('hidden');
-        }
-
-        // Fungsi untuk memuat halaman berdasarkan musim/tahun donghua
-        async function loadDonghuaBySeason(year) {
-            if (!year) year = "2023"; // Ganti dengan logika atau input jika diperlukan
-
-            const data = await fetchAPI(`/donghua/seasons/${year}`);
-            const container = document.getElementById('search-results-list'); // Gunakan container pencarian untuk menampilkan hasil
-            container.innerHTML = ''; // Kosongkan kontainer sebelumnya
-
-            if (data && data.data && Array.isArray(data.data)) {
-                renderAnimeList(data.data, 'search-results-list', true); // Kirim array hasil ke renderAnimeList, dengan isDonghua = true
-                document.getElementById('search-results').querySelector('h2').textContent = `Donghua Tahun ${year}`;
-            } else {
-                container.innerHTML = '<p>Daftar Donghua untuk tahun ini tidak ditemukan atau struktur API berubah.</p>';
-                document.getElementById('search-results').querySelector('h2').textContent = `Donghua Tahun ${year}`;
-                console.warn("Struktur data /donghua/seasons/{year} tidak sesuai:", data);
-            }
-
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('search-results').classList.remove('hidden');
-        }
-
         // Event Listeners
         document.getElementById('search-button').addEventListener('click', () => {
             const activePage = document.querySelector('nav ul li a.active').getAttribute('data-page');
@@ -1370,28 +1212,13 @@
                     case 'all-anime':
                         loadAllAnimePage();
                         break;
-                    // Tambahkan case untuk Donghua
-                    case 'donghua-home':
-                        loadDonghuaHome();
-                        break;
-                    case 'donghua-ongoing':
-                        loadDonghuaOngoing();
-                        break;
-                    case 'donghua-completed':
-                        loadDonghuaCompleted();
-                        break;
-                    case 'donghua-genre':
-                        loadDonghuaGenre();
-                        break;
-                    case 'donghua-season-2025':
-                        loadDonghuaBySeason('2025');
-                        break;
-                    case 'donghua-season-2024':
-                        loadDonghuaBySeason('2024');
-                        break;
-                    case 'donghua-season-2023':
-                        loadDonghuaBySeason('2023');
-                        break;
+                    // case 'donghua-home': // Dihapus
+                    // case 'donghua-ongoing': // Dihapus
+                    // case 'donghua-completed': // Dihapus
+                    // case 'donghua-genre': // Dihapus
+                    // case 'donghua-season-2025': // Dihapus
+                    // case 'donghua-season-2024': // Dihapus
+                    // case 'donghua-season-2023': // Dihapus
                     // Tambahkan case lain jika diperlukan
                 }
                 // Update kelas active
