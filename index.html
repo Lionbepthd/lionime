@@ -782,10 +782,14 @@
             document.getElementById('toggle-episode-list').textContent = 'Sembunyikan'; // Reset tombol
         }
 
-        // Fungsi untuk menampilkan detail donghua
+        // Fungsi untuk menampilkan detail donghua (VERSII DEBUGGING)
         async function showDonghuaDetail(slug) {
-            // Panggil API detail Donghua dengan slug yang benar
+            console.log("Mencoba membuka detail Donghua dengan slug:", slug); // Log untuk melihat slug yang dikirim
+
+            // Panggil API detail Donghua dengan slug yang diterima
             const data = await fetchAPI(`/donghua/detail/${slug}`);
+            console.log("Respons API /donghua/detail/", slug, ":", data); // Log untuk melihat respons API
+
             if (!data || !data.data) {
                 console.error("Data detail donghua tidak ditemukan atau struktur salah:", data);
                 document.getElementById('anime-detail').innerHTML = '<p>Detail donghua tidak ditemukan.</p>';
