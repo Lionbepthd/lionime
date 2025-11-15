@@ -676,7 +676,7 @@
                 `;
                 // Gunakan fungsi yang sesuai berdasarkan apakah ini Donghua atau bukan
                 if (isDonghua) {
-                    card.addEventListener('click', () => showDonghuaDetail(anime.slug));
+                    card.addEventListener('click', () => showDonghuaDetail(anime.slug)); // <-- Pastikan fungsi ini dipanggil
                 } else {
                     card.addEventListener('click', () => showAnimeDetail(anime.slug));
                 }
@@ -784,6 +784,7 @@
 
         // Fungsi untuk menampilkan detail donghua
         async function showDonghuaDetail(slug) {
+            // Panggil API detail Donghua dengan slug yang benar
             const data = await fetchAPI(`/donghua/detail/${slug}`);
             if (!data || !data.data) {
                 console.error("Data detail donghua tidak ditemukan atau struktur salah:", data);
@@ -1029,7 +1030,7 @@
 
         // Fungsi untuk memuat halaman utama (Anime dan Donghua Terbaru)
         async function loadHomePage() {
-            // Muat Anime Terbaru
+            // Muat Anime Terbaru (dari ongoing_anime di /home)
             const animeData = await fetchAPI('/home');
             if (animeData && animeData.data && animeData.data.ongoing_anime) {
                 renderAnimeList(animeData.data.ongoing_anime, 'anime-latest-grid', false);
@@ -1038,13 +1039,13 @@
                 console.warn("Struktur data /home (anime) tidak sesuai:", animeData);
             }
 
-            // Muat Donghua Terbaru
-            const donghuaData = await fetchAPI('/donghua/home/1');
-            if (donghuaData && donghuaData.data && Array.isArray(donghuaData.data.latest_release)) {
-                renderAnimeList(donghuaData.data.latest_release, 'donghua-latest-grid', true);
+            // Muat Donghua Terbaru (kita gunakan series ongoing sebagai contoh)
+            const donghuaData = await fetchAPI('/donghua/ongoing/1'); // Ganti endpoint
+            if (donghuaData && donghuaData.data && Array.isArray(donghuaData.data.ongoing_donghua)) { // Periksa struktur
+                renderAnimeList(donghuaData.data.ongoing_donghua, 'donghua-latest-grid', true); // Gunakan ongoing_donghua
             } else {
                 renderAnimeList([], 'donghua-latest-grid', true);
-                console.warn("Struktur data /donghua/home (donghua) tidak sesuai:", donghuaData);
+                console.warn("Struktur data /donghua/ongoing (donghua) tidak sesuai:", donghuaData);
             }
 
             // Tampilkan section home
