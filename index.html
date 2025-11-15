@@ -28,12 +28,16 @@
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Pastikan body setidaknya setinggi viewport */
         }
 
         .container {
             width: 90%;
             max-width: 1200px;
             margin: 0 auto;
+            flex: 1; /* Biarkan container utama mengambil ruang yang tersisa */
         }
 
         a {
@@ -90,6 +94,8 @@
         .search-container {
             display: flex;
             gap: 0.5rem;
+            width: 100%; /* Buat search container mengambil lebar penuh di mobile */
+            margin-top: 1rem; /* Tambahkan jarak dari nav */
         }
 
         #search-input, #search-button {
@@ -101,7 +107,7 @@
         #search-input {
             background-color: #3c3c3c;
             color: var(--text-color);
-            width: 200px;
+            flex: 1; /* Buat input mengambil ruang yang tersisa */
         }
 
         #search-button {
@@ -118,6 +124,7 @@
         /* Main Content */
         main {
             padding: 2rem 0;
+            flex: 1; /* Biarkan main mengambil ruang yang tersisa */
         }
 
         section {
@@ -132,8 +139,8 @@
         /* Anime Grid */
         .anime-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Lebar minimum card disesuaikan */
+            gap: 1rem; /* Kurangi gap sedikit */
         }
 
         .anime-card {
@@ -143,6 +150,8 @@
             box-shadow: var(--box-shadow);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
+            display: flex; /* Gunakan flex untuk mengatur gambar dan info */
+            flex-direction: column; /* Susun gambar dan info secara vertikal */
         }
 
         .anime-card:hover {
@@ -152,38 +161,44 @@
 
         .anime-card img {
             width: 100%;
-            height: 250px;
+            height: 190px; /* Atur tinggi gambar tetap */
             object-fit: cover;
             display: block;
         }
 
         .anime-card .info {
-            padding: 1rem;
+            padding: 0.8rem; /* Kurangi padding */
+            flex: 1; /* Info mengambil ruang yang tersisa */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Info teks di atas, status di bawah */
         }
 
         .anime-card .info h3 {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
+            font-size: 0.9rem; /* Ukuran font lebih kecil */
+            margin-bottom: 0.3rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .anime-card .info p {
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Ukuran font lebih kecil */
             color: var(--text-secondary);
+            margin: 0; /* Hapus margin default */
         }
 
         /* Detail Content */
         #detail-content {
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Susun detail dan episode list secara vertikal */
             gap: 2rem;
         }
 
         #anime-detail {
             display: flex;
-            gap: 2rem;
+            flex-direction: column; /* Di mobile, gambar dan teks disusun vertikal */
+            gap: 1.5rem;
             background-color: var(--card-background);
             padding: 1.5rem;
             border-radius: var(--border-radius);
@@ -191,10 +206,11 @@
         }
 
         #anime-detail img {
-            width: 250px;
-            height: 350px;
+            width: 100%; /* Gambar mengambil lebar penuh */
+            height: 300px; /* Atur tinggi tetap */
             object-fit: cover;
             border-radius: var(--border-radius);
+            align-self: center; /* Pusatkan gambar */
         }
 
         #anime-detail .text {
@@ -202,13 +218,17 @@
         }
 
         #anime-detail .text h1 {
-            font-size: 1.8rem;
+            font-size: 1.5rem; /* Ukuran font lebih kecil */
             margin-bottom: 1rem;
             color: var(--primary-color);
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         #anime-detail .text p {
             margin-bottom: 0.5rem;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         #recommendations-section {
@@ -226,6 +246,7 @@
             padding: 1.5rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            /* max-height akan diatur oleh JavaScript saat toggle */
         }
 
         #episode-list h3 {
@@ -250,11 +271,16 @@
         #episode-list ul {
             list-style: none;
             padding: 0;
+            margin: 0;
+            max-height: 400px; /* Batasi tinggi daftar episode */
+            overflow-y: auto; /* Tambahkan scroll jika isi terlalu panjang */
         }
 
         #episode-list ul li {
             padding: 0.5rem 0;
             border-bottom: 1px solid #3c3c3c;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         #episode-list ul li:last-child {
@@ -264,6 +290,9 @@
         #episode-list ul li a {
             color: var(--text-secondary);
             transition: color 0.3s ease;
+            display: block; /* Jadikan link sebagai block agar lebih mudah diklik di mobile */
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         #episode-list ul li a:hover {
@@ -302,6 +331,8 @@
 
         .all-anime-list-ul li {
             margin-bottom: 0.25rem;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         .all-anime-list-ul li a {
@@ -318,6 +349,8 @@
             margin-top: 1.5rem;
             padding-top: 1rem;
             border-top: 1px solid #3c3c3c;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         #batch-links-container h4 {
@@ -345,6 +378,8 @@
 
         .batch-quality ul li {
             margin-bottom: 0.25rem;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
         }
 
         .batch-quality ul li a {
@@ -362,35 +397,61 @@
             background-color: var(--secondary-color);
             padding: 1.5rem 0;
             text-align: center;
-            margin-top: auto;
+            margin-top: auto; /* Dorong footer ke bawah */
         }
 
         /* Media Queries untuk Responsif */
-        @media (max-width: 768px) {
+        @media (min-width: 769px) {
+            /* Gaya untuk desktop/laptop */
             header .container {
-                flex-direction: column;
-                gap: 1rem;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
             }
 
-            nav ul {
-                gap: 1rem;
-            }
-
-            #search-input {
-                width: 100%;
+            .search-container {
+                width: auto; /* Kembalikan lebar otomatis di desktop */
+                margin-top: 0; /* Hapus margin */
             }
 
             .anime-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Lebar card lebih besar di desktop */
             }
 
             #anime-detail {
-                flex-direction: column;
+                flex-direction: row; /* Di desktop, gambar dan teks disusun horizontal */
+                gap: 2rem;
             }
 
             #anime-detail img {
-                width: 100%;
-                height: 300px;
+                width: 250px; /* Lebar tetap di desktop */
+                height: 350px; /* Tinggi tetap di desktop */
+                align-self: flex-start; /* Gambar tetap di atas */
+            }
+
+            #anime-detail .text h1 {
+                font-size: 1.8rem; /* Ukuran font lebih besar di desktop */
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Gaya untuk mobile */
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            main {
+                padding: 1rem 0; /* Kurangi padding di mobile */
+            }
+
+            h2 {
+                font-size: 1.3rem; /* Ukuran font judul lebih kecil */
+            }
+
+            #episode-list ul {
+                max-height: 250px; /* Kurangi tinggi maksimum daftar episode di mobile */
             }
         }
     </style>
@@ -618,6 +679,11 @@
                 document.getElementById('recommendations-list').innerHTML = '<p>Tidak ada rekomendasi.</p>';
             }
 
+            // --- Ambil slug anime yang benar untuk digunakan di link episode ---
+            // Kita ambil dari anime.otakudesu_url atau anime.slug (dari data /anime/{slug})
+            // Karena anime.slug dari /anime/{slug} bisa jadi URL penuh, kita ambil bagian akhirnya
+            const correctAnimeId = anime.otakudesu_url ? anime.otakudesu_url.split('/').pop() : anime.slug.split('/').pop(); // Perbaikan di sini
+
             // Render daftar episode
             if (anime.episode_lists && anime.episode_lists.length > 0) {
                 // Urutkan episode berdasarkan episode_number (opsional, tapi bagus untuk urutan)
@@ -627,8 +693,8 @@
                 sortedEpisodes.forEach(ep => {
                     const li = document.createElement('li');
                     // Gunakan episode_number untuk teks link
-                    // Ganti onclick untuk membuka halaman stream.html
-                    li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(anime.title)}&animeId=${anime.slug}" target="_blank">${ep.episode_number}. ${ep.episode}</a>`;
+                    // Ganti onclick untuk membuka halaman stream.html dengan animeId yang benar
+                    li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(anime.title)}&animeId=${correctAnimeId}" target="_blank">${ep.episode_number}. ${ep.episode}</a>`;
                     episodeListUl.appendChild(li);
                 });
             } else {
