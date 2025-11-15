@@ -392,6 +392,24 @@
             color: var(--primary-color);
         }
 
+        /* Genre List */
+        #genre-list {
+            display: block; /* Ubah dari grid ke block */
+            /* Hapus grid-template-columns dan gap */
+        }
+        #genre-list a {
+            display: block; /* Jadikan setiap link sebagai block terpisah */
+            padding: 1rem;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem; /* Tambahkan jarak antar item */
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        #genre-list a:last-child { /* Hapus margin-bottom dari item terakhir */
+            margin-bottom: 0;
+        }
+
         /* Footer */
         footer {
             background-color: var(--secondary-color);
@@ -431,6 +449,26 @@
 
             #anime-detail .text h1 {
                 font-size: 1.8rem; /* Ukuran font lebih besar di desktop */
+            }
+
+            /* Atur kembali #genre-list untuk desktop jika diinginkan */
+            /* Misalnya, kembali ke grid */
+            #genre-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+            #genre-list a {
+                display: block;
+                padding: 1rem;
+                background-color: var(--card-background);
+                border-radius: var(--border-radius);
+                margin-bottom: 0; /* Hapus margin di desktop karena grid */
+                text-align: center;
+                transition: background-color 0.3s ease;
+            }
+            #genre-list a:last-child {
+                margin-bottom: 0;
             }
         }
 
