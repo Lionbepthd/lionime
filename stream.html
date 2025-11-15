@@ -255,9 +255,12 @@
             const animeTitle = getUrlParameter('title');
             const animeId = getUrlParameter('animeId');
 
+            console.log("Mencoba memuat episode:", episodeSlug, "Anime ID:", animeId, "Anime Title:", animeTitle); // Log untuk debugging
+
             if (!episodeSlug) {
-                document.getElementById('video-player-container').innerHTML = '<p>Episode tidak ditemukan.</p>';
+                document.getElementById('video-player-container').innerHTML = '<p>Episode tidak ditemukan (slug kosong).</p>';
                 document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
+                document.getElementById('episode-list-ul').innerHTML = '<p>Parameter episode tidak valid.</p>';
                 return;
             }
 
@@ -271,6 +274,7 @@
                 console.error("Data episode tidak ditemukan atau struktur salah:", data);
                 document.getElementById('video-player-container').innerHTML = '<p>Link streaming tidak ditemukan.</p>';
                 document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
+                document.getElementById('episode-list-ul').innerHTML = '<p>Data episode tidak ditemukan.</p>';
                 return;
             }
 
@@ -290,8 +294,11 @@
 
             // --- Daftar Episode Terkait ---
             if (animeId) {
+                console.log("Mencari detail anime untuk ID:", animeId); // Log untuk debugging
                 const animeDetailData = await fetchAPI(`/anime/${animeId}`);
-                if (animeDetailData && animeDetailData.data && animeDetailData.data.episode_lists) {
+                console.log("Data detail anime:", animeDetailData); // Log untuk debugging
+
+                if (animeDetailData && animeDetailData.data && animeDetailData.data.episode_lists && Array.isArray(animeDetailData.data.episode_lists)) {
                     const episodeListUl = document.getElementById('episode-list-ul');
                     const sortedEpisodes = [...animeDetailData.data.episode_lists].sort((a, b) => a.episode_number - b.episode_number);
                     episodeListUl.innerHTML = ''; // Kosongkan dulu
@@ -303,11 +310,14 @@
                         li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(animeDetailData.data.title)}&animeId=${animeId}" ${isActive}>${ep.episode_number}. ${ep.episode}</a>`;
                         episodeListUl.appendChild(li);
                     });
+                    console.log("Daftar episode berhasil dimuat."); // Log untuk debugging
                 } else {
-                    document.getElementById('episode-list-ul').innerHTML = '<p>Daftar episode tidak ditemukan.</p>';
+                    document.getElementById('episode-list-ul').innerHTML = '<p>Daftar episode tidak ditemukan (struktur data salah atau tidak ada). Error API?</p>';
+                    console.warn("Struktur data episode_lists tidak ditemukan atau bukan array:", animeDetailData);
                 }
             } else {
-                document.getElementById('episode-list-ul').innerHTML = '<p>Daftar episode tidak ditemukan (ID Anime tidak diberikan).</p>';
+                document.getElementById('episode-list-ul').innerHTML = '<p>Daftar episode tidak ditemukan (ID Anime tidak diberikan dari halaman sebelumnya).</p>';
+                console.warn("animeId tidak ditemukan di URL.");
             }
         }
 
