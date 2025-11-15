@@ -221,12 +221,35 @@
             margin-bottom: 1rem;
         }
 
-        #episode-list ul {
-            list-style: none;
-            padding: 1.5rem;
+        #episode-list {
             background-color: var(--card-background);
+            padding: 1.5rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+        }
+
+        #episode-list h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #episode-list h3 button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        #episode-list h3 button:hover {
+            color: var(--primary-color);
+        }
+
+        #episode-list ul {
+            list-style: none;
+            padding: 0;
         }
 
         #episode-list ul li {
@@ -245,63 +268,6 @@
 
         #episode-list ul li a:hover {
             color: var(--primary-color);
-        }
-
-        /* Episode Content */
-        #episode-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        #video-player-container {
-            background-color: black;
-            height: 500px;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-color);
-        }
-
-        #video-player-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        #episode-info {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        #episode-info h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        /* Genre List */
-        #genre-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        #genre-list a {
-            display: block;
-            padding: 1rem;
-            background-color: var(--card-background);
-            border-radius: var(--border-radius);
-            text-align: center;
-            transition: background-color 0.3s ease;
-        }
-
-        #genre-list a:hover {
-            background-color: #3c3c3c;
         }
 
         /* Schedule */
@@ -426,10 +392,6 @@
                 width: 100%;
                 height: 300px;
             }
-
-            #video-player-container {
-                height: 300px;
-            }
         }
     </style>
 </head>
@@ -468,16 +430,10 @@
                 <!-- Detail anime akan dimuat di sini -->
             </div>
             <div id="episode-list">
-                <!-- Daftar episode akan dimuat di sini -->
-            </div>
-        </section>
-
-        <section id="episode-content" class="hidden">
-            <div id="video-player-container">
-                <!-- Player video akan dimuat di sini -->
-            </div>
-            <div id="episode-info">
-                <!-- Info episode akan dimuat di sini -->
+                <h3>Daftar Episode <button id="toggle-episode-list">Sembunyikan</button></h3>
+                <ul id="episode-list-ul">
+                    <!-- Daftar episode akan dimuat di sini -->
+                </ul>
             </div>
         </section>
 
@@ -599,13 +555,13 @@
             if (!data || !data.data) {
                 console.error("Data detail anime tidak ditemukan atau struktur salah:", data);
                 document.getElementById('anime-detail').innerHTML = '<p>Detail anime tidak ditemukan.</p>';
-                document.getElementById('episode-list').innerHTML = '';
+                document.getElementById('episode-list-ul').innerHTML = '';
                 return;
             }
 
             const anime = data.data; // Ambil objek anime dari data.data
             const detailContainer = document.getElementById('anime-detail');
-            const episodeListContainer = document.getElementById('episode-list');
+            const episodeListUl = document.getElementById('episode-list-ul');
 
             // Render detail utama anime
             detailContainer.innerHTML = `
@@ -664,56 +620,26 @@
 
             // Render daftar episode
             if (anime.episode_lists && anime.episode_lists.length > 0) {
-                episodeListContainer.innerHTML = '<h3>Daftar Episode</h3><ul></ul>';
-                const list = episodeListContainer.querySelector('ul');
                 // Urutkan episode berdasarkan episode_number (opsional, tapi bagus untuk urutan)
                 const sortedEpisodes = [...anime.episode_lists].sort((a, b) => a.episode_number - b.episode_number);
+                episodeListUl.innerHTML = ''; // Kosongkan dulu
 
                 sortedEpisodes.forEach(ep => {
                     const li = document.createElement('li');
                     // Gunakan episode_number untuk teks link
-                    li.innerHTML = `<a href="#" onclick="showEpisode('${ep.slug}'); return false;">${ep.episode_number}. ${ep.episode}</a>`;
-                    list.appendChild(li);
+                    // Ganti onclick untuk membuka halaman stream.html
+                    li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(anime.title)}&animeId=${anime.slug}" target="_blank">${ep.episode_number}. ${ep.episode}</a>`;
+                    episodeListUl.appendChild(li);
                 });
             } else {
-                episodeListContainer.innerHTML = '<h3>Daftar Episode</h3><p>Daftar episode tidak tersedia.</p>';
+                episodeListUl.innerHTML = '<p>Daftar episode tidak tersedia.</p>';
             }
 
             // Tampilkan section detail
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('detail-content').classList.remove('hidden');
-        }
-
-        // Fungsi untuk menampilkan episode
-        async function showEpisode(slug) {
-            const data = await fetchAPI(`/episode/${slug}`);
-            if (!data || !data.data) {
-                console.error("Data episode tidak ditemukan atau struktur salah:", data);
-                document.getElementById('video-player-container').innerHTML = '<p>Link streaming tidak ditemukan.</p>';
-                document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
-                return;
-            }
-
-            const episodeData = data.data;
-            const playerContainer = document.getElementById('video-player-container');
-            const infoContainer = document.getElementById('episode-info');
-
-            // --- Info Episode ---
-            infoContainer.innerHTML = `<h1>${episodeData.episode || 'Judul Episode Tidak Diketahui'}</h1>`;
-
-            // --- Player Video ---
-            // Cek apakah stream_url tersedia
-            if (episodeData.stream_url) {
-                playerContainer.innerHTML = `<iframe src="${episodeData.stream_url}" frameborder="0" allowfullscreen></iframe>`;
-            } else {
-                // Jika stream_url tidak ada, dan kita tidak bisa mengandalkan /server/ karena error,
-                // maka kita beri tahu pengguna bahwa tidak bisa dimainkan secara langsung di sini.
-                playerContainer.innerHTML = '<p>Link streaming utama tidak ditemukan atau tidak bisa dimuat di sini.</p>';
-            }
-
-            // Tampilkan section episode
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('episode-content').classList.remove('hidden');
+            document.getElementById('episode-list').classList.remove('hidden'); // Pastikan episode list ditampilkan saat masuk detail
+            document.getElementById('toggle-episode-list').textContent = 'Sembunyikan'; // Reset tombol
         }
 
         // Fungsi untuk pencarian
@@ -792,11 +718,8 @@
                     const link = document.createElement('a');
                     link.href = '#';
                     link.textContent = genre.name;
-                    // Untuk sementara, hanya tampilkan alert atau konsol log
-                    // Untuk implementasi penuh, kita perlu menangani klik genre
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
-                        // Panggil fungsi baru untuk menampilkan anime berdasarkan genre
                         showAnimeByGenre(genre.slug, genre.name);
                     });
                     container.appendChild(link);
@@ -946,11 +869,28 @@
             });
         }
 
+        // Fungsi Toggle Daftar Episode
+        function toggleEpisodeList() {
+            const episodeList = document.getElementById('episode-list');
+            const button = document.getElementById('toggle-episode-list');
+
+            if (episodeList.classList.contains('hidden')) {
+                episodeList.classList.remove('hidden');
+                button.textContent = 'Sembunyikan';
+            } else {
+                episodeList.classList.add('hidden');
+                button.textContent = 'Tampilkan';
+            }
+        }
+
         // Event Listeners
         document.getElementById('search-button').addEventListener('click', searchAnime);
         document.getElementById('search-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') searchAnime();
         });
+
+        // Toggle Episode List
+        document.getElementById('toggle-episode-list').addEventListener('click', toggleEpisodeList);
 
         // Navigasi Halaman Sederhana
         document.querySelectorAll('nav ul li a[data-page]').forEach(link => {
@@ -976,7 +916,6 @@
                     case 'all-anime':
                         loadAllAnimePage();
                         break;
-                    // Tambahkan case lain jika diperlukan
                 }
                 // Update kelas active
                 document.querySelectorAll('nav ul li a').forEach(a => a.classList.remove('active'));
@@ -987,10 +926,6 @@
         // Muat halaman home saat pertama kali
         document.addEventListener('DOMContentLoaded', () => {
             loadHomePage();
-            // Tambahkan event listener untuk tombol kembali jika perlu
-            window.addEventListener('popstate', () => {
-                // Implementasi navigasi browser jika diinginkan
-            });
         });
     </script>
 </body>
