@@ -87,6 +87,7 @@
             transition: color 0.3s ease;
         }
 
+        nav ul li a:hover,
         nav ul li a.active {
             color: var(--primary-color);
         }
@@ -94,9 +95,7 @@
         /* Main Content */
         main {
             padding: 2rem 0;
-            display: flex;
-            flex-direction: column; /* Susun elemen secara vertikal */
-            gap: 2rem; /* Jarak antar elemen */
+            flex: 1; /* Biarkan main mengambil ruang yang tersisa */
         }
 
         h2 {
@@ -107,7 +106,7 @@
         /* Video Player */
         #video-player-container {
             background-color: black;
-            width: 100%; /* Pastikan lebar penuh */
+            width: 100%;
             /* Tinggi proporsional 16:9 */
             aspect-ratio: 16 / 9;
             border-radius: var(--border-radius);
@@ -130,6 +129,7 @@
             padding: 1.5rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            margin-top: 2rem;
         }
 
         #episode-info h1 {
@@ -138,6 +138,82 @@
             color: var(--primary-color);
             word-wrap: break-word; /* Pecah teks jika terlalu panjang */
             overflow-wrap: break-word;
+        }
+
+        /* Stream Servers */
+        #stream-servers {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 2rem;
+        }
+
+        #stream-servers h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        #stream-servers ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #stream-servers ul li {
+            margin-bottom: 0.5rem;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
+        }
+
+        #stream-servers ul li a {
+            color: var(--text-secondary);
+            text-decoration: underline;
+            transition: color 0.3s ease;
+            display: block; /* Jadikan link sebagai block agar lebih mudah diklik di mobile */
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
+        }
+
+        #stream-servers ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Download Links */
+        #download-links {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 2rem;
+        }
+
+        #download-links h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        #download-links ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #download-links ul li {
+            margin-bottom: 0.5rem;
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
+        }
+
+        #download-links ul li a {
+            color: var(--text-secondary);
+            text-decoration: underline;
+            transition: color 0.3s ease;
+            display: block; /* Jadikan link sebagai block agar lebih mudah diklik di mobile */
+            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
+            overflow-wrap: break-word;
+        }
+
+        #download-links ul li a:hover {
+            color: var(--primary-color);
         }
 
         /* Footer */
@@ -153,17 +229,21 @@
             header .container {
                 flex-direction: column;
                 gap: 1rem;
-                text-align: center; /* Pusatkan teks di mobile */
+                text-align: center;
             }
 
             nav ul {
                 gap: 1rem;
-                flex-wrap: wrap; /* Bungkus link jika terlalu banyak */
-                justify-content: center; /* Pusatkan link nav */
+                flex-wrap: wrap;
+                justify-content: center;
             }
 
             main {
                 padding: 1rem 0; /* Kurangi padding di mobile */
+            }
+
+            h2 {
+                font-size: 1.3rem; /* Ukuran font judul lebih kecil */
             }
 
             #video-player-container {
@@ -199,7 +279,19 @@
             <!-- Info episode akan dimuat di sini -->
         </div>
 
-        <!-- Bagian #episode-list dihapus -->
+        <div id="stream-servers">
+            <h3>Server Streaming</h3>
+            <ul id="stream-servers-list">
+                <!-- Link server akan dimuat di sini -->
+            </ul>
+        </div>
+
+        <div id="download-links">
+            <h3>Link Download</h3>
+            <ul id="download-links-list">
+                <!-- Link download akan dimuat di sini -->
+            </ul>
+        </div>
     </main>
 
     <footer>
@@ -229,79 +321,82 @@
             }
         }
 
-        // Fungsi untuk menampilkan episode dan daftar episode terkait
-        async function loadEpisode() {
+        // Fungsi untuk menampilkan episode (menggunakan API Animasu)
+        async function showEpisode() {
             const episodeSlug = getUrlParameter('episode');
-            const animeTitle = getUrlParameter('title');
-            // const animeId = getUrlParameter('animeId'); // Tidak digunakan lagi karena daftar episode dihapus
+            const animeTitle = getUrlParameter('title'); // Bisa digunakan untuk judul halaman atau info
 
-            console.log("Mencoba memuat episode:", episodeSlug, "Anime Title:", animeTitle); // Log untuk debugging
+            console.log("Mencoba memuat episode dari Animasu dengan slug:", episodeSlug, "Anime Title:", animeTitle); // Log untuk debugging
 
             if (!episodeSlug) {
                 document.getElementById('video-player-container').innerHTML = '<p>Episode tidak ditemukan (slug kosong).</p>';
                 document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
+                document.getElementById('stream-servers-list').innerHTML = '';
+                document.getElementById('download-links-list').innerHTML = '';
                 return;
             }
 
-            // Update judul placeholder daftar episode (hapus jika tidak relevan)
-            // if (animeTitle) {
-            //     document.getElementById('anime-title-placeholder').textContent = `untuk ${decodeURIComponent(animeTitle)}`;
-            // }
+            // Panggil API episode Animasu
+            const data = await fetchAPI(`/animasu/episode/${episodeSlug}`);
+            console.log("Respons API /animasu/episode/", episodeSlug, ":", data); // Log untuk debugging
 
-            const data = await fetchAPI(`/episode/${episodeSlug}`);
             if (!data || !data.data) {
-                console.error("Data episode tidak ditemukan atau struktur salah:", data);
+                console.error("Data episode dari Animasu tidak ditemukan atau struktur salah:", data);
                 document.getElementById('video-player-container').innerHTML = '<p>Link streaming tidak ditemukan.</p>';
                 document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
+                document.getElementById('stream-servers-list').innerHTML = '';
+                document.getElementById('download-links-list').innerHTML = '';
                 return;
             }
 
             const episodeData = data.data;
             const playerContainer = document.getElementById('video-player-container');
             const infoContainer = document.getElementById('episode-info');
+            const streamList = document.getElementById('stream-servers-list');
+            const downloadList = document.getElementById('download-links-list');
 
             // --- Info Episode ---
-            infoContainer.innerHTML = `<h1>${episodeData.episode || 'Judul Episode Tidak Diketahui'}</h1>`;
+            infoContainer.innerHTML = `<h1>${episodeData.title || 'Judul Episode Tidak Diketahui'}</h1>`;
 
-            // --- Player Video ---
-            if (episodeData.stream_url) {
-                playerContainer.innerHTML = `<iframe src="${episodeData.stream_url}" frameborder="0" allowfullscreen></iframe>`;
+            // --- Stream Servers List (API Animasu) ---
+            streamList.innerHTML = ''; // Kosongkan dulu
+            if (episodeData.streams && episodeData.streams.length > 0) {
+                episodeData.streams.forEach(stream => {
+                    const li = document.createElement('li');
+                    // Gunakan stream.name sebagai teks link
+                    li.innerHTML = `<a href="${stream.url}" target="_blank">${stream.name}</a>`;
+                    streamList.appendChild(li);
+                });
             } else {
-                playerContainer.innerHTML = '<p>Link streaming utama tidak ditemukan atau tidak bisa dimuat di sini.</p>';
+                streamList.innerHTML = '<li>Tidak ada link streaming yang tersedia.</li>';
             }
 
-            // --- Daftar Episode Terkait --- (Bagian ini dihapus)
-            // if (animeId) {
-            //     console.log("Mencari detail anime untuk ID:", animeId); // Log untuk debugging
-            //     const animeDetailData = await fetchAPI(`/anime/${animeId}`);
-            //     console.log("Data detail anime:", animeDetailData); // Log untuk debugging
+            // --- Download Links List (API Animasu) ---
+            downloadList.innerHTML = ''; // Kosongkan dulu
+            if (episodeData.downloads && episodeData.downloads.length > 0) {
+                episodeData.downloads.forEach(download => {
+                    const li = document.createElement('li');
+                    // Gunakan download.name sebagai teks link
+                    li.innerHTML = `<a href="${download.url}" target="_blank">${download.name}</a>`;
+                    downloadList.appendChild(li);
+                });
+            } else {
+                downloadList.innerHTML = '<li>Tidak ada link download yang tersedia.</li>';
+            }
 
-            //     if (animeDetailData && animeDetailData.data && animeDetailData.data.episode_lists && Array.isArray(animeDetailData.data.episode_lists)) {
-            //         const episodeListUl = document.getElementById('episode-list-ul');
-            //         const sortedEpisodes = [...animeDetailData.data.episode_lists].sort((a, b) => a.episode_number - b.episode_number);
-            //         episodeListUl.innerHTML = ''; // Kosongkan dulu
-
-            //         sortedEpisodes.forEach(ep => {
-            //             const li = document.createElement('li');
-            //             const isActive = ep.slug === episodeSlug ? 'style="color: var(--primary-color); font-weight: bold;"' : '';
-            //             // Ganti link untuk reload halaman stream dengan episode baru
-            //             li.innerHTML = `<a href="stream.html?episode=${ep.slug}&title=${encodeURIComponent(animeDetailData.data.title)}&animeId=${animeId}" ${isActive}>${ep.episode_number}. ${ep.episode}</a>`;
-            //             episodeListUl.appendChild(li);
-            //         });
-            //         console.log("Daftar episode berhasil dimuat."); // Log untuk debugging
-            //     } else {
-            //         document.getElementById('episode-list-ul').innerHTML = '<p>Daftar episode tidak ditemukan (struktur data salah atau tidak ada). Error API?</p>';
-            //         console.warn("Struktur data episode_lists tidak ditemukan atau bukan array:", animeDetailData);
-            //     }
-            // } else {
-            //     document.getElementById('episode-list-ul').innerHTML = '<p>Daftar episode tidak ditemukan (ID Anime tidak diberikan dari halaman sebelumnya).</p>';
-            //     console.warn("animeId tidak ditemukan di URL.");
-            // }
+            // --- Player Video (API Animasu) ---
+            // Gunakan server pertama sebagai default player
+            if (episodeData.streams && episodeData.streams.length > 0) {
+                const firstStreamUrl = episodeData.streams[0].url;
+                playerContainer.innerHTML = `<iframe src="${firstStreamUrl}" frameborder="0" allowfullscreen></iframe>`;
+            } else {
+                playerContainer.innerHTML = '<p>Tidak ada link streaming utama yang tersedia.</p>';
+            }
         }
 
         // Muat episode saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
-            loadEpisode();
+            showEpisode();
         });
     </script>
 </body>
