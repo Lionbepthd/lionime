@@ -1,6 +1,6 @@
 # Lionime
 
-**Lionime** adalah website pribadi untuk menonton anime dengan UI modern dan responsif, dibangun untuk memberikan pengalaman menonton yang menyenangkan di semua perangkat. Proyek ini dikembangkan oleh **Vi'an Pandu Al-Roqim**, seorang siswa kelas 10F yang tertarik pada teknologi dan dunia anime.
+**Lionime** adalah website pribadi untuk menonton anime dengan UI modern dan responsif, dibangun untuk memberikan pengalaman menonton yang menyenangkan di semua perangkat.
 
 ## Fitur
 
