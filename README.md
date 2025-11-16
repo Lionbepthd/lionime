@@ -14,7 +14,6 @@
 
 - **HTML, CSS, JavaScript** – Frontend dasar.
 - **API Otakudesu By www.sankavollerei.com** – Untuk mendapatkan data anime.
-- **Html** – Build tool untuk performa lebih cepat.
 - **Netlify** – Deployment hosting.
 
 ## Cara Menjalankan Proyek
