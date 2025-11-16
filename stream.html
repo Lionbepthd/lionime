@@ -3,401 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streaming - Lionime</title>
+    <title>Menu Maintenance - Sistem Pemeliharaan</title>
     <style>
-        /* Gaya Umum */
-        :root {
-            --primary-color: #e74c3c;
-            --secondary-color: #2c3e50;
-            --background-color: #1a1a1a;
-            --card-background: #2d2d2d;
-            --text-color: #ecf0f1;
-            --text-secondary: #bdc3c7;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* Pastikan body setidaknya setinggi viewport */
         }
-
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
         .container {
-            width: 90%;
             max-width: 1200px;
             margin: 0 auto;
-            flex: 1; /* Biarkan container utama mengambil ruang yang tersisa */
+            padding: 20px;
         }
-
-        a {
-            text-decoration: none;
-            color: var(--text-color);
-        }
-
-        a:hover {
-            color: var(--primary-color);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Header */
+        
         header {
-            background-color: var(--secondary-color);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--box-shadow);
-        }
-
-        header .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-
-        nav ul li a {
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        nav ul li a:hover,
-        nav ul li a.active {
-            color: var(--primary-color);
-        }
-
-        /* Main Content */
-        main {
-            padding: 2rem 0;
-            flex: 1; /* Biarkan main mengambil ruang yang tersisa */
-        }
-
-        h2 {
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
-        }
-
-        /* Video Player */
-        #video-player-container {
-            background-color: black;
-            width: 100%;
-            /* Tinggi proporsional 16:9 */
-            aspect-ratio: 16 / 9;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-color);
-        }
-
-        #video-player-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Episode Info */
-        #episode-info {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-top: 2rem;
-        }
-
-        #episode-info h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
-            overflow-wrap: break-word;
-        }
-
-        /* Stream Servers */
-        #stream-servers {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-top: 2rem;
-        }
-
-        #stream-servers h3 {
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        #stream-servers ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        #stream-servers ul li {
-            margin-bottom: 0.5rem;
-            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
-            overflow-wrap: break-word;
-        }
-
-        #stream-servers ul li a {
-            color: var(--text-secondary);
-            text-decoration: underline;
-            transition: color 0.3s ease;
-            display: block; /* Jadikan link sebagai block agar lebih mudah diklik di mobile */
-            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
-            overflow-wrap: break-word;
-        }
-
-        #stream-servers ul li a:hover {
-            color: var(--primary-color);
-        }
-
-        /* Download Links */
-        #download-links {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-top: 2rem;
-        }
-
-        #download-links h3 {
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        #download-links ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        #download-links ul li {
-            margin-bottom: 0.5rem;
-            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
-            overflow-wrap: break-word;
-        }
-
-        #download-links ul li a {
-            color: var(--text-secondary);
-            text-decoration: underline;
-            transition: color 0.3s ease;
-            display: block; /* Jadikan link sebagai block agar lebih mudah diklik di mobile */
-            word-wrap: break-word; /* Pecah teks jika terlalu panjang */
-            overflow-wrap: break-word;
-        }
-
-        #download-links ul li a:hover {
-            color: var(--primary-color);
-        }
-
-        /* Footer */
-        footer {
-            background-color: var(--secondary-color);
-            padding: 1.5rem 0;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px 0;
             text-align: center;
-            margin-top: auto; /* Dorong footer ke bawah */
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        /* Media Queries untuk Responsif */
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .maintenance-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .maintenance-section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-urgent {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-report {
+            background-color: #2ecc71;
+        }
+        
+        .btn-report:hover {
+            background-color: #27ae60;
+        }
+        
+        .maintenance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .maintenance-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .maintenance-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e1e1e1;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 4px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #e1e1e1;
+        }
+        
         @media (max-width: 768px) {
-            header .container {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
+            .maintenance-grid {
+                grid-template-columns: 1fr;
             }
-
-            nav ul {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            main {
-                padding: 1rem 0; /* Kurangi padding di mobile */
-            }
-
-            h2 {
-                font-size: 1.3rem; /* Ukuran font judul lebih kecil */
-            }
-
-            #video-player-container {
-                /* Tinggi proporsional 16:9 tetap berlaku, tetapi ukuran absolut bisa berkurang */
-                /* aspect-ratio: 16 / 9; -- Sudah ditetapkan di atas */
-            }
-
-            #episode-info h1 {
-                font-size: 1.2rem; /* Ukuran font lebih kecil di mobile */
+            
+            table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
 </head>
 <body>
-
-    <header>
-        <div class="container">
-            <h1 class="logo">Lionime</h1>
-            <nav>
-                <ul>
-                    <li><a href="index.html">Kembali ke Daftar</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main class="container">
-        <div id="video-player-container">
-            <!-- Player video akan dimuat di sini -->
-        </div>
-
-        <div id="episode-info">
-            <!-- Info episode akan dimuat di sini -->
-        </div>
-
-        <div id="stream-servers">
-            <h3>Server Streaming</h3>
-            <ul id="stream-servers-list">
-                <!-- Link server akan dimuat di sini -->
-            </ul>
-        </div>
-
-        <div id="download-links">
-            <h3>Link Download</h3>
-            <ul id="download-links-list">
-                <!-- Link download akan dimuat di sini -->
-            </ul>
-        </div>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Lionime. Semua hak dilindungi.</p>
-    </footer>
-
-    <script>
-        const API_BASE = 'https://www.sankavollerei.com/anime';
-
-        // Fungsi untuk mendapatkan parameter URL
-        function getUrlParameter(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-
-        // Fungsi untuk memanggil API
-        async function fetchAPI(endpoint) {
-            try {
-                const response = await fetch(`${API_BASE}${endpoint}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching data from API:', error);
-                return null;
-            }
-        }
-
-        // Fungsi untuk menampilkan episode (menggunakan API Animasu)
-        async function showEpisode() {
-            const episodeSlug = getUrlParameter('episode');
-            const animeTitle = getUrlParameter('title'); // Bisa digunakan untuk judul halaman atau info
-
-            console.log("Mencoba memuat episode dari Animasu dengan slug:", episodeSlug, "Anime Title:", animeTitle); // Log untuk debugging
-
-            if (!episodeSlug) {
-                document.getElementById('video-player-container').innerHTML = '<p>Episode tidak ditemukan (slug kosong).</p>';
-                document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
-                document.getElementById('stream-servers-list').innerHTML = '';
-                document.getElementById('download-links-list').innerHTML = '';
-                return;
-            }
-
-            // Panggil API episode Animasu
-            const data = await fetchAPI(`/animasu/episode/${episodeSlug}`);
-            console.log("Respons API /animasu/episode/", episodeSlug, ":", data); // Log untuk debugging
-
-            if (!data || !data.data) {
-                console.error("Data episode dari Animasu tidak ditemukan atau struktur salah:", data);
-                document.getElementById('video-player-container').innerHTML = '<p>Link streaming tidak ditemukan.</p>';
-                document.getElementById('episode-info').innerHTML = '<h1>Episode Tidak Diketahui</h1>';
-                document.getElementById('stream-servers-list').innerHTML = '';
-                document.getElementById('download-links-list').innerHTML = '';
-                return;
-            }
-
-            const episodeData = data.data;
-            const playerContainer = document.getElementById('video-player-container');
-            const infoContainer = document.getElementById('episode-info');
-            const streamList = document.getElementById('stream-servers-list');
-            const downloadList = document.getElementById('download-links-list');
-
-            // --- Info Episode ---
-            infoContainer.innerHTML = `<h1>${episodeData.title || 'Judul Episode Tidak Diketahui'}</h1>`;
-
-            // --- Stream Servers List (API Animasu) ---
-            streamList.innerHTML = ''; // Kosongkan dulu
-            if (episodeData.streams && episodeData.streams.length > 0) {
-                episodeData.streams.forEach(stream => {
-                    const li = document.createElement('li');
-                    // Gunakan stream.name sebagai teks link
-                    li.innerHTML = `<a href="${stream.url}" target="_blank">${stream.name}</a>`;
-                    streamList.appendChild(li);
-                });
-            } else {
-                streamList.innerHTML = '<li>Tidak ada link streaming yang tersedia.</li>';
-            }
-
-            // --- Download Links List (API Animasu) ---
-            downloadList.innerHTML = ''; // Kosongkan dulu
-            if (episodeData.downloads && episodeData.downloads.length > 0) {
-                episodeData.downloads.forEach(download => {
-                    const li = document.createElement('li');
-                    // Gunakan download.name sebagai teks link
-                    li.innerHTML = `<a href="${download.url}" target="_blank">${download.name}</a>`;
-                    downloadList.appendChild(li);
-                });
-            } else {
-                downloadList.innerHTML = '<li>Tidak ada link download yang tersedia.</li>';
-            }
-
-            // --- Player Video (API Animasu) ---
-            // Gunakan server pertama sebagai default player
-            if (episodeData.streams && episodeData.streams.length > 0) {
-                const firstStreamUrl = episodeData.streams[0].url;
-                playerContainer.innerHTML = `<iframe src="${firstStreamUrl}" frameborder="0" allowfullscreen></iframe>`;
-            } else {
-                playerContainer.innerHTML = '<p>Tidak ada link streaming utama yang tersedia.</p>';
-            }
-        }
-
-        // Muat episode saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', () => {
-            showEpisode();
-        });
-    </script>
+    <div class="container">
+        <header>
+            <h1>Sistem Menu Maintenance</h1>
+            <p>Jadwal dan Pelacakan Pemeliharaan Peralatan</p>
+        </header>
+        
+        <section class="maintenance-section">
+            <h2 class="section-title">📋 Maintenance Harian</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Aktivitas</th>
+                        <th>Target/Area</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Awal Shift</td>
+                        <td>Pengecekan visual, kebersihan dasar, level oli/air</td>
+                        <td>Mesin produksi, kompresor</td>
+                        <td><span class="status status-completed">Selesai</span></td>
+                        <td><button class="btn">Detail</button></td>
+                    </tr>
+                    <tr>
+                        <td>Selama Shift</td>
+                        <td>Monitoring kinerja, pengecekan titik kritis</td>
+                        <td>Line produksi, conveyor</td>
+                        <td><span class="status status-pending">Berjalan</span></td>
+                        <td><button class="btn">Detail</button></td>
+                    </tr>
+                    <tr>
+                        <td>Akhir Shift</td>
+                        <td>Pembersihan area kerja, pengecekan akhir</td>
+                        <td>Seluruh area kerja, peralatan</td>
+                        <td><span class="status status-pending">Menunggu</span></td>
+                        <td><button class="btn">Detail</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="maintenance-section">
+            <h2 class="section-title">📅 Maintenance Mingguan</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hari</th>
+                        <th>Aktivitas</th>
+                        <th>Periode</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Senin</td>
+                        <td>Pembersihan filter, pemeriksaan belt</td>
+                        <td>Minggu 1 & 3</td>
+                        <td><span class="status status-completed">Selesai</span></td>
+                        <td><button class="btn">Detail</button></td>
+                    </tr>
+                    <tr>
+                        <td>Rabu</td>
+                        <td>Kalibrasi alat ukur, pemeriksaan safety device</td>
+                        <td>Setiap minggu</td>
+                        <td><span class="status status-pending">Berjalan</span></td>
+                        <td><button class="btn">Detail</button></td>
+                    </tr>
+                    <tr>
+                        <td>Jumat</td>
+                        <td>Pengecekan sistem hidrolik, pelumasan</td>
+                        <td>Setiap minggu</td>
+                        <td><span class="status status-pending">Menunggu</span></td>
+                        <td><button class="btn">Detail</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <section class="maintenance-section">
+            <h2 class="section-title">📊 Maintenance Bulanan</h2>
+            <div class="maintenance-grid">
+                <div class="maintenance-card">
+                    <h3 class="card-title">🔧 Mesin Produksi</h3>
+                    <p>Pemeriksaan menyeluruh komponen utama, penggantian part yang aus.</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 75%"></div>
+                    </div>
+                    <p>Progress: 75%</p>
+                    <button class="btn btn-report">Laporkan</button>
+                </div>
+                
+                <div class="maintenance-card">
+                    <h3 class="card-title">⚡ Sistem Listrik</h3>
+                    <p>Pengecekan panel listrik, kabel, dan komponen elektrik lainnya.</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 40%"></div>
+                    </div>
+                    <p>Progress: 40%</p>
+                    <button class="btn btn-report">Laporkan</button>
+                </div>
+                
+                <div class="maintenance-card">
+                    <h3 class="card-title">💨 Sistem Udara</h3>
+                    <p>Pembersihan filter udara, pemeriksaan kebocoran, penggantian oli kompresor.</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 90%"></div>
+                    </div>
+                    <p>Progress: 90%</p>
+                    <button class="btn btn-report">Laporkan</button>
+                </div>
+            </div>
+        </section>
+        
+        <section class="maintenance-section">
+            <h2 class="section-title">🚨 Maintenance Darurat</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Tiket</th>
+                        <th>Deskripsi Masalah</th>
+                        <th>Lokasi</th>
+                        <th>Prioritas</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MT-2023-001</td>
+                        <td>Mesin conveyor berhenti mendadak</td>
+                        <td>Line Produksi B</td>
+                        <td><span class="status status-urgent">Tinggi</span></td>
+                        <td><button class="btn">Tangani</button></td>
+                    </tr>
+                    <tr>
+                        <td>MT-2023-002</td>
+                        <td>Kebocoran hidrolik</td>
+                        <td>Press Machine 5</td>
+                        <td><span class="status status-urgent">Tinggi</span></td>
+                        <td><button class="btn">Tangani</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <footer>
+            <p>&copy; 2023 Sistem Menu Maintenance. Semua hak dilindungi.</p>
+        </footer>
+    </div>
 </body>
 </html>
