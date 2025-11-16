@@ -428,14 +428,6 @@
             padding-bottom: 0.5rem;
         }
 
-        /* Footer */
-        footer {
-            background-color: var(--secondary-color);
-            padding: 1.5rem 0;
-            text-align: center;
-            margin-top: auto; /* Dorong footer ke bawah */
-        }
-
         /* Media Queries untuk Responsif */
         @media (min-width: 769px) {
             /* Gaya untuk desktop/laptop */
@@ -610,10 +602,6 @@
 
     </main>
 
-    <footer>
-        <p>&copy; 2025 Lionime. Semua hak dilindungi.</p>
-    </footer>
-
     <script>
         const API_BASE = 'https://www.sankavollerei.com/anime';
 
@@ -782,7 +770,7 @@
             document.getElementById('toggle-episode-list').textContent = 'Sembunyikan'; // Reset tombol
         }
 
-        // Fungsi untuk menampilkan detail donghua (VERSII DEBUGGING)
+        // Fungsi untuk menampilkan detail donghua (VERSII SETELAH PERBAIKAN STRUKTUR DATA)
         async function showDonghuaDetail(slug) {
             console.log("Mencoba membuka detail Donghua dengan slug:", slug); // Log untuk melihat slug yang dikirim
 
@@ -790,14 +778,15 @@
             const data = await fetchAPI(`/donghua/detail/${slug}`);
             console.log("Respons API /donghua/detail/", slug, ":", data); // Log untuk melihat respons API
 
-            if (!data || !data.data) {
+            // Periksa apakah data ada dan memiliki properti yang diperlukan, seperti title
+            if (!data || typeof data !== 'object' || !data.title) { // <-- Periksa berdasarkan properti penting
                 console.error("Data detail donghua tidak ditemukan atau struktur salah:", data);
                 document.getElementById('anime-detail').innerHTML = '<p>Detail donghua tidak ditemukan.</p>';
                 document.getElementById('episode-list-ul').innerHTML = '';
                 return;
             }
 
-            const donghua = data.data; // Ambil objek donghua dari data.data
+            const donghua = data; // <-- Gunakan data langsung
             const detailContainer = document.getElementById('anime-detail');
             const episodeListUl = document.getElementById('episode-list-ul');
 
@@ -806,14 +795,14 @@
                 <img src="${donghua.poster || 'https://via.placeholder.com/250x350?text=No+Image'}" alt="${donghua.title}">
                 <div class="text">
                     <h1>${donghua.title}</h1>
-                    <p><strong>Judul Jepang:</strong> ${donghua.japanese_title || 'Tidak Diketahui'}</p>
+                    <p><strong>Judul Jepang:</strong> ${donghua.alter_title || 'Tidak Diketahui'}</p>
                     <p><strong>Genre:</strong> ${donghua.genres ? donghua.genres.map(g => g.name).join(', ') : 'Tidak Diketahui'}</p>
                     <p><strong>Status:</strong> ${donghua.status || 'Tidak Diketahui'}</p>
-                    <p><strong>Episode:</strong> ${donghua.episode_count || 'Tidak Diketahui'}</p>
+                    <p><strong>Episode:</strong> ${donghua.episodes_count || 'Tidak Diketahui'}</p>
                     <p><strong>Tipe:</strong> ${donghua.type || 'Tidak Diketahui'}</p>
                     <p><strong>Studio:</strong> ${donghua.studio || 'Tidak Diketahui'}</p>
                     <p><strong>Rating:</strong> ${donghua.rating || 'Tidak Diketahui'}</p>
-                    <p><strong>Rilis:</strong> ${donghua.release_date || 'Tidak Diketahui'}</p>
+                    <p><strong>Rilis:</strong> ${donghua.released || 'Tidak Diketahui'}</p>
                     <p><strong>Durasi:</strong> ${donghua.duration || 'Tidak Diketahui'}</p>
                     <p><strong>Sinopsis:</strong> ${donghua.synopsis || 'Tidak tersedia.'}</p>
                     <!-- Link batch mungkin berbeda untuk Donghua, abaikan dulu -->
@@ -834,6 +823,8 @@
             `;
 
             // Render rekomendasi jika ada (jika API menyediakan)
+            // Catatan: Properti 'recommendations' mungkin tidak selalu ada di respons detail
+            // Jika tidak ada, bagian ini akan kosong.
             if (donghua.recommendations && donghua.recommendations.length > 0) {
                 renderAnimeList(donghua.recommendations, 'recommendations-list', true); // Pastikan ini adalah daftar donghua
             } else {
@@ -1045,8 +1036,9 @@
 
             // Muat Donghua Terbaru (kita gunakan series ongoing sebagai contoh)
             const donghuaData = await fetchAPI('/donghua/ongoing/1'); // Ganti endpoint
-            if (donghuaData && donghuaData.data && Array.isArray(donghuaData.data.ongoing_donghua)) { // Periksa struktur
-                renderAnimeList(donghuaData.data.ongoing_donghua, 'donghua-latest-grid', true); // Gunakan ongoing_donghua
+            console.log("Nilai donghuaData sebelum pengecekan:", donghuaData); // <-- Tambahkan log ini
+            if (donghuaData && donghuaData.data && Array.isArray(donghuaData.data.ongoing_donghua)) {
+                renderAnimeList(donghuaData.data.ongoing_donghua, 'donghua-latest-grid', true);
             } else {
                 renderAnimeList([], 'donghua-latest-grid', true);
                 console.warn("Struktur data /donghua/ongoing (donghua) tidak sesuai:", donghuaData);
