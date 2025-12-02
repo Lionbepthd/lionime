@@ -1,0 +1,126 @@
+:root {
+    --primary-red: #e63946; /* Warna utama */
+    --dark-bg: #1d3557;
+    --darker-bg: #14213d;
+    --card-bg: #2b2d42;
+    --slate-800: #1e293b; /* Warna background utama */
+    --slate-900: #0f172a; /* Warna background body */
+    --slate-100: #f1f5f9; /* Warna teks utama */
+    --slate-300: #cbd5e1; /* Warna teks sekunder */
+    --slate-400: #94a3b8; /* Warna teks abu-abu */
+    --slate-500: #64748b; /* Warna abu-abu lebih gelap */
+    --slate-600: #475569; /* Warna border */
+    --slate-700: #334155; /* Warna background card */
+    --slate-800: #1e293b; /* Warna background navbar/footer */
+}
+
+body {
+    background-color: var(--slate-900);
+    color: var(--slate-100);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Gaya Navbar */
+nav {
+    background-color: var(--slate-800);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn {
+    @apply px-3 py-2 rounded-lg text-slate-100 font-medium hover:bg-slate-700 transition-colors duration-200;
+}
+
+.mobile-nav-btn {
+    @apply block w-full text-left px-4 py-2 rounded-lg text-slate-100 font-medium hover:bg-slate-700 transition-colors duration-200;
+}
+
+.search-btn {
+    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 p-2 rounded-lg transition-colors duration-200;
+}
+
+/* Gaya Main Content */
+#main-content {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Gaya Kartu Anime */
+.card-anime {
+    @apply bg-slate-700 rounded-lg overflow-hidden shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.anime-poster {
+    @apply w-full object-cover rounded-t-lg;
+    aspect-ratio: 2 / 3; /* Rasio tinggi/lebar poster */
+}
+
+.card-anime-content {
+    @apply p-3 flex-grow flex flex-col;
+}
+
+.card-anime-title {
+    @apply font-semibold text-sm line-clamp-2 mb-1;
+    color: var(--slate-100);
+}
+
+.card-anime-meta {
+    @apply flex justify-between items-center mt-auto text-xs text-slate-400;
+}
+
+.card-anime-episode,
+.card-anime-rating {
+    @apply truncate;
+}
+
+/* Gaya Episode Item di Detail */
+.episode-item {
+    @apply bg-slate-700 p-3 rounded-lg flex justify-between items-center transition-colors duration-200;
+}
+
+.episode-item:hover {
+    background-color: var(--slate-600);
+}
+
+/* Gaya Modal */
+#detail-modal .bg-card,
+#episode-modal .bg-card {
+    background-color: var(--slate-800);
+}
+
+/* Gaya untuk iframe player */
+.player-iframe {
+    width: 100%;
+    height: 60vh; /* Tinggi responsif */
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Animasi */
+.loading {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Gaya untuk highlight pencarian (jika diperlukan) */
+.search-highlight {
+    background-color: rgba(230, 57, 70, 0.3);
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.25rem;
+}
