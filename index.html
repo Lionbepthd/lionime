@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lionime - Portal Anime</title>
+    <!-- Gunakan Tailwind CSS untuk utilitas dasar -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tambahkan link ke file CSS kustom -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col bg-slate-900 text-slate-100">
+    <!-- Navbar -->
+    <nav class="bg-slate-800 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="#" onclick="loadHome()" class="text-2xl font-bold text-white">
+                        <i class="fas fa-dragon text-primary mr-2"></i>
+                        Lionime
+                    </a>
+                    <!-- Tombol navigasi utama -->
+                    <div class="hidden md:flex space-x-2">
+                        <button onclick="loadHome()" class="nav-btn">Home</button>
+                        <button onclick="loadPopular()" class="nav-btn">Popular</button>
+                        <button onclick="loadOngoing()" class="nav-btn">Ongoing</button>
+                        <button onclick="loadCompleted()" class="nav-btn">Completed</button>
+                        <button onclick="loadMovies()" class="nav-btn">Movies</button>
+                        <button onclick="loadLatest()" class="nav-btn">Latest</button>
+                        <button onclick="loadGenres()" class="nav-btn">Genres</button>
+                        <button onclick="loadCharacters()" class="nav-btn">Characters</button>
+                        <button onclick="loadSchedule()" class="nav-btn">Schedule</button>
+                        <button onclick="loadAlphabet()" class="nav-btn">A-Z</button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showSearchPage()" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <!-- Tombol hamburger untuk mobile -->
+                    <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Menu mobile -->
+            <div id="mobile-menu" class="md:hidden hidden flex-col space-y-2 pb-4">
+                <button onclick="loadHome()" class="mobile-nav-btn">Home</button>
+                <button onclick="loadPopular()" class="mobile-nav-btn">Popular</button>
+                <button onclick="loadOngoing()" class="mobile-nav-btn">Ongoing</button>
+                <button onclick="loadCompleted()" class="mobile-nav-btn">Completed</button>
+                <button onclick="loadMovies()" class="mobile-nav-btn">Movies</button>
+                <button onclick="loadLatest()" class="mobile-nav-btn">Latest</button>
+                <button onclick="loadGenres()" class="mobile-nav-btn">Genres</button>
+                <button onclick="loadCharacters()" class="mobile-nav-btn">Characters</button>
+                <button onclick="loadSchedule()" class="mobile-nav-btn">Schedule</button>
+                <button onclick="loadAlphabet()" class="mobile-nav-btn">A-Z</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-grow container mx-auto p-4">
+        <div class="text-center py-20">
+            <h2 class="text-4xl font-bold mb-4">Selamat Datang di Lionime</h2>
+            <p class="text-xl text-slate-300">Temukan ribuan anime favoritmu di sini</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 p-4 text-center text-slate-400">
+        <p>&copy; 2025 Lionime. Semua hak dilindungi.</p>
+    </footer>
+
+    <!-- Modal for Anime Detail -->
+    <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="detail-title" class="text-2xl font-bold text-white"></h2>
+                    <button onclick="closeModal()" class="text-white text-2xl hover:text-primary">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="detail-content" class="space-y-4">
+                    <!-- Detail akan diisi oleh JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Episode Player -->
+    <div id="episode-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="episode-title" class="text-2xl font-bold text-white"></h2>
+                    <button onclick="closeEpisodeModal()" class="text-white text-2xl hover:text-primary">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="episode-content" class="space-y-4">
+                    <!-- Player akan diisi oleh JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+    <script>
+        // Toggle mobile menu
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
