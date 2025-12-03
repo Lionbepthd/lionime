@@ -14,7 +14,6 @@
 
 - **HTML, CSS, JavaScript** – Frontend dasar.
 - **API Animasu By www.sankavollerei.com** – Untuk mendapatkan data anime.
-- **Netlify** – Deployment hosting.
 
 ## Cara Menjalankan Proyek
 
