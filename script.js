@@ -14,8 +14,25 @@ const ENDPOINTS_WITH_ANIMES = ['popular', 'movies', 'ongoing', 'completed', 'lat
 // Domain yang diizinkan untuk stream
 const ALLOWED_STREAM_DOMAINS = ['www.blogger.com', 'mega.nz', 'filedon.co'];
 
+// Slug genre yang ingin dikecualikan
+const EXCLUDED_GENRE_SLUGS = ['ecchi']; // Tambahkan slug lain jika perlu
+
+// Fungsi untuk menandai tombol navigasi aktif
+function setActiveNavButton(buttonId) {
+    // Hapus kelas 'active' dari semua tombol navigasi
+    document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    // Tambahkan kelas 'active' ke tombol yang sesuai
+    const activeBtn = document.getElementById(buttonId);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
+}
+
 // Load home page
 async function loadHome() {
+    setActiveNavButton('nav-home'); // Tandai tombol Home sebagai aktif
     showLoading();
     try {
         const response = await fetchData(`${API_BASE}/home`); // Tidak ada ?page=1
@@ -47,42 +64,50 @@ async function loadHome() {
 
 // Load popular anime - endpoint khusus dengan struktur animes
 async function loadPopular() { // Hapus parameter page default
+    setActiveNavButton('nav-popular'); // Tandai tombol Popular sebagai aktif
     currentEndpoint = 'popular';
     await loadAnimeList(`${API_BASE}/popular`, 'Anime Populer', 'animes'); // Tidak ada ?page=1
 }
 
 // Load ongoing anime - endpoint khusus dengan struktur animes
 async function loadOngoing() { // Hapus parameter page default
+    setActiveNavButton('nav-ongoing'); // Tandai tombol Ongoing sebagai aktif
     currentEndpoint = 'ongoing';
     await loadAnimeList(`${API_BASE}/ongoing`, 'Anime Ongoing', 'animes'); // Tidak ada ?page=1
 }
 
 // Load completed anime - endpoint khusus dengan struktur animes
 async function loadCompleted() { // Hapus parameter page default
+    setActiveNavButton('nav-completed'); // Tandai tombol Completed sebagai aktif
     currentEndpoint = 'completed';
     await loadAnimeList(`${API_BASE}/completed`, 'Anime Completed', 'animes'); // Tidak ada ?page=1
 }
 
-// Load latest anime - endpoint khusus dengan struktur animes
-async function loadLatest() { // Hapus parameter page default
-    currentEndpoint = 'latest';
-    await loadAnimeList(`${API_BASE}/latest`, 'Anime Terbaru', 'animes'); // Tidak ada ?page=1
-}
-
 // Load movies - endpoint khusus dengan struktur animes
 async function loadMovies() { // Hapus parameter page default
+    setActiveNavButton('nav-movies'); // Tandai tombol Movies sebagai aktif
     currentEndpoint = 'movies';
     await loadAnimeList(`${API_BASE}/movies`, 'Anime Movie', 'animes'); // Tidak ada ?page=1
 }
 
+// Load latest anime - endpoint khusus dengan struktur animes
+async function loadLatest() { // Hapus parameter page default
+    setActiveNavButton('nav-latest'); // Tandai tombol Latest sebagai aktif
+    currentEndpoint = 'latest';
+    await loadAnimeList(`${API_BASE}/latest`, 'Anime Terbaru', 'animes'); // Tidak ada ?page=1
+}
+
 // Load genres
 async function loadGenres() {
+    setActiveNavButton('nav-genres'); // Tandai tombol Genres sebagai aktif
     showLoading();
     try {
         const response = await fetchData(`${API_BASE}/genres`);
         // Perbaikan: Gunakan 'genres' bukan 'data'
-        const genres = response.genres || [];
-        
+        let genres = response.genres || [];
+        // Filter untuk menghapus genre yang dikecualikan
+        genres = genres.filter(genre => !EXCLUDED_GENRE_SLUGS.includes(genre.slug.toLowerCase()));
+
         const content = `
             <h2 class="text-2xl font-bold mb-6 text-primary">Daftar Genre</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -104,11 +129,13 @@ async function loadGenres() {
 async function loadGenreAnime(slug) { // Hapus parameter page default
     currentEndpoint = `genre/${slug}`;
     // Endpoint genre kemungkinan besar menggunakan 'animes' (berdasarkan pengamatan /search, /animelist)
+    // Kita tetap perlu filter di loadAnimeList karena slug bisa saja bukan 'ecchi', tapi anime dalam daftar bisa memiliki genre 'ecchi'
     await loadAnimeList(`${API_BASE}/genre/${slug}`, `Anime Genre: ${slug}`, 'animes'); // Tidak ada ?page=1
 }
 
 // Load characters
 async function loadCharacters() {
+    setActiveNavButton('nav-characters'); // Tandai tombol Characters sebagai aktif
     showLoading();
     try {
         const response = await fetchData(`${API_BASE}/characters`);
@@ -139,6 +166,7 @@ async function loadCharacterAnime(slug) {
 
 // Load schedule
 async function loadSchedule() {
+    setActiveNavButton('nav-schedule'); // Tandai tombol Schedule sebagai aktif
     showLoading();
     try {
         const response = await fetchData(`${API_BASE}/schedule`);
@@ -162,15 +190,23 @@ async function loadSchedule() {
         // Iterasi melalui setiap hari dalam schedule
         for (const [dayKey, animeList] of Object.entries(schedule)) {
             if (animeList.length > 0) { // Hanya tampilkan hari jika ada anime
-                const dayName = dayNames[dayKey] || dayKey; // Gunakan nama lokal atau kunci asli jika tidak ditemukan
-                content += `
-                    <section class="mb-8">
-                        <h3 class="text-xl font-bold mb-4 text-primary">${dayName}</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            ${renderAnimeCards(animeList)}
-                        </div>
-                    </section>
-                `;
+                // Filter anime dalam daftar jadwal juga
+                const filteredAnimeList = animeList.filter(anime => {
+                    if (!anime.genres || !Array.isArray(anime.genres)) return true; // Jika tidak ada genres, tampilkan
+                    return !anime.genres.some(genre => EXCLUDED_GENRE_SLUGS.includes(genre.slug.toLowerCase()));
+                });
+
+                if (filteredAnimeList.length > 0) { // Hanya tampilkan bagian jika masih ada anime setelah filter
+                    const dayName = dayNames[dayKey] || dayKey; // Gunakan nama lokal atau kunci asli jika tidak ditemukan
+                    content += `
+                        <section class="mb-8">
+                            <h3 class="text-xl font-bold mb-4 text-primary">${dayName}</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                ${renderAnimeCards(filteredAnimeList)}
+                            </div>
+                        </section>
+                    `;
+                }
             }
         }
 
@@ -183,6 +219,7 @@ async function loadSchedule() {
 
 // Load alphabet list
 async function loadAlphabet() {
+    setActiveNavButton('nav-alphabet'); // Tandai tombol A-Z sebagai aktif
     showLoading();
     try {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -206,6 +243,7 @@ async function loadAlphabet() {
 
 // Load anime by letter
 async function loadByLetter(letter) { // Hapus parameter page default
+    setActiveNavButton('nav-alphabet'); // Tandai tombol A-Z sebagai aktif saat memuat huruf
     currentEndpoint = `animelist?letter=${letter}`;
     // loadAnimeList akan menangani 'animelist' sebagai endpoint dengan animes
     await loadAnimeList(`${API_BASE}/animelist?letter=${letter}`, `Anime dengan huruf: ${letter}`, 'animes'); // Tidak ada ?page=1
@@ -213,6 +251,7 @@ async function loadByLetter(letter) { // Hapus parameter page default
 
 // Show search page
 function showSearchPage() {
+    setActiveNavButton('nav-search'); // Tandai tombol Search sebagai aktif
     const content = `
         <h2 class="text-2xl font-bold mb-6 text-primary">Cari Anime</h2>
         <div class="mb-6">
@@ -243,7 +282,7 @@ function showSearchPage() {
     `;
     document.getElementById('main-content').innerHTML = content;
     
-    // Load genres for filter
+    // Load genres for filter (tanpa ecchi)
     loadGenresForFilter();
 }
 
@@ -252,8 +291,11 @@ async function loadGenresForFilter() {
     try {
         const response = await fetchData(`${API_BASE}/genres`);
         // Perbaikan: Gunakan 'genres' bukan 'data'
-        const genres = response.genres || [];
+        let genres = response.genres || [];
+        // Filter untuk menghapus genre yang dikecualikan
+        genres = genres.filter(genre => !EXCLUDED_GENRE_SLUGS.includes(genre.slug.toLowerCase()));
         const select = document.getElementById('genre-filter');
+        select.innerHTML = '<option value="">Semua Genre</option>'; // Reset dan tambahkan default
         genres.forEach(genre => {
             const option = document.createElement('option');
             option.value = genre.slug;
@@ -292,12 +334,21 @@ async function performAdvancedSearch() {
 }
 
 // Load anime list (generic function) - menerima kunci array data
+// Fungsi ini sekarang menyaring anime berdasarkan genre yang dikecualikan
 async function loadAnimeList(url, title, dataKey = 'data') {
     showLoading();
     try {
         const response = await fetchData(url);
         // Ambil data dari kunci yang ditentukan
-        const animeList = response[dataKey] || [];
+        let animeList = response[dataKey] || [];
+        // Filter anime berdasarkan genre yang dikecualikan
+        animeList = animeList.filter(anime => {
+            // Asumsikan anime memiliki properti 'genres' yang berisi array objek {name, slug}
+            if (!anime.genres || !Array.isArray(anime.genres)) return true; // Jika tidak ada genres, tampilkan
+            // Kembalikan true jika tidak ada genre dalam daftar yang dikecualikan
+            return !anime.genres.some(genre => EXCLUDED_GENRE_SLUGS.includes(genre.slug.toLowerCase()));
+        });
+
         const pagination = response.pagination || { currentPage: 1, hasNext: false, hasPrev: false };
 
         const content = `
@@ -575,6 +626,8 @@ function showError(error) {
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
     loadHome();
+    // Set Home button as active on initial load
+    setActiveNavButton('nav-home');
 });
 
 // Handle browser back/forward
