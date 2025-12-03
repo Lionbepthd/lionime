@@ -13,11 +13,11 @@
 ## Teknologi yang Digunakan
 
 - **HTML, CSS, JavaScript** – Frontend dasar.
-- **API Otakudesu By www.sankavollerei.com** – Untuk mendapatkan data anime.
+- **API Animasu By www.sankavollerei.com** – Untuk mendapatkan data anime.
 - **Netlify** – Deployment hosting.
 
 ## Cara Menjalankan Proyek
 
 1. Clone repository ini:
    ```bash
-   git clone https://github.com/Lionbepthd/lionime-website.git
+   git clone https://github.com/Lionbepthd/lionime.git
