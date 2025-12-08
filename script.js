@@ -1,5 +1,5 @@
 // Base API URL
-const API_BASE = 'https://www.sankavollerei.com/anime/animasu';
+const API_BASE = 'https://www.sankavollerei.com/anime/animas';
 
 // Current page state
 let currentPage = 1;
