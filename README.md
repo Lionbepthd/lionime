@@ -1,6 +1,6 @@
 # Lionime
 
-**Lionime** adalah website pribadi untuk menonton anime dengan UI modern dan responsif, dibangun untuk memberikan pengalaman menonton yang menyenangkan di semua perangkat.
+**Lionime** adalah apk pribadi untuk menonton anime dengan UI modern dan responsif, dibangun untuk memberikan pengalaman menonton yang menyenangkan di semua perangkat.
 
 ## Fitur
 
